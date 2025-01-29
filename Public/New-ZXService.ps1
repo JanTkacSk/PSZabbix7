@@ -95,11 +95,7 @@ function New-ZXService {
     if($null -ne $Request.error){
         $Request.error
         return
-    }
-    elseif($CountOutput){
-        $Request.result
-        return
-    }   
+    }  
     else {
         $Request.result
         return
