@@ -1,4 +1,4 @@
-function New-ZXProblemTagList {
+function New-ZXTagFilter {
 
     $Tags = [System.Collections.ArrayList]::new()
 
@@ -21,7 +21,7 @@ function New-ZXProblemTagList {
             Exists {$operator = "4" }
             NotExists {$operator = "5" }
         }
-        $newObject = [PSCustomObject]@{ name = $Name; operator = $Operator; value = $Value }
+        $newObject = [PSCustomObject]@{ tag = $Name; operator = $Operator; value = $Value }
         $this.Tags.Add($newObject) | Out-Null
         return $this
     }
