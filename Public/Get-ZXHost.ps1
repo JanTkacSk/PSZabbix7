@@ -16,7 +16,6 @@ function Get-ZXHost {
         [array]$HostID,
         [ValidateSet("0","1","Enabled","Disabled")]
         [string]$Status,
-        [switch]$IncludeConfiguration,
         [switch]$ShowJsonRequest,
         [switch]$ShowResponseTime,
         [switch]$ShowJsonResponse,
@@ -219,14 +218,6 @@ function Get-ZXHost {
     }
     if ($IncludeTriggers) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTriggers" -Value $TriggerProperties
-    }
-    if ($IncludeConfiguration) {
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectParentTemplates" -Value @("templateid","name")
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectGroups" -Value @("groupid","name")
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value @("tag","value")
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectInheritedTags" -Value @("tag","value")
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectInterfaces" -Value "extend"
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectMacros" -Value "extend"
     }
     # Return only hosts that are linked to the given templates.
     if ($TemplateIDs) {
