@@ -13,9 +13,9 @@ function Add-ZXHostGroup {
         [switch]$ShowJsonResponse,
         [switch]$ShowJsonRequest,
         [Alias("SaveRes")]
-        [bool]$SaveJsonRequest=$true,
+        [bool]$SaveJsonRequest=$false,
         [Alias("SaveReq")]
-        [bool]$SaveJsonResponse=$true,
+        [bool]$SaveJsonResponse=$false,
         [switch]$WhatIf
     )
     
@@ -135,7 +135,7 @@ function Add-ZXHostGroup {
             $request.result | ConvertTo-Json -Depth 5 | Out-File -FilePath "$SaveLocation\Add-ZXHostGroup_JSON_Response_$DateTime.json"
         }
         Write-Host -ForegroundColor Yellow "Response saved to:"
-        Write-Host "$SaveLocation\Add-ZXHostGroup-JSON_Response-$DateTime.json"
+        Write-Host "$SaveLocation\Add-ZXHostGroup_JSON_Response-$DateTime.json"
     }
     
     #This will be returned by the function
