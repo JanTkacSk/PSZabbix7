@@ -44,7 +44,7 @@ function New-ZXService {
         $PSObj.params = $Parameters
     }
     if ($Name) {
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "name" -Value $Name
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "tag" -Value $Name
     }
     if ($Algorithm) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "algorithm" -Value $Algorithm

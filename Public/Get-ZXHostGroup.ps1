@@ -42,7 +42,7 @@ function Get-ZXHostGroup {
     }
 
     if (!$Output){
-        $Output = @("name")
+        $Output = @("name","groupid")
     }
     elseif($Output -contains "extend") {
         [string]$Output = "extend"
