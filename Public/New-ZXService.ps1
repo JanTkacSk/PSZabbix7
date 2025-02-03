@@ -10,8 +10,6 @@ function New-ZXService {
         [array]$ParentServiceID,
         [array]$ProblemTag,
         [array]$ServiceTag,
-        [PSCustomObject]$AdvancedStatusRule,
-        [array]$StatusRules,
         [switch]$ShowJsonRequest,
         [switch]$WhatIf,
         [PSCustomObject]$Parameters,
