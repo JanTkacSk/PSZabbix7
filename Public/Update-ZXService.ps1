@@ -15,7 +15,6 @@ function Update-ZXService {
         [switch]$WhatIf,
         [PSCustomObject]$Parameters,
         [array]$StatusRule
-
     )
 
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
