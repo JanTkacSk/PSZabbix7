@@ -47,6 +47,7 @@ function Get-ZXHost {
         [int]$Limit,
         [switch]$WhatIf,
         [array]$ItemProperties,
+        [array]$InterfaceProperties,
         [array]$TriggerProperties
 
     )
@@ -58,6 +59,14 @@ function Get-ZXHost {
         }
         elseif($ItemProperties -contains "extend"){
             [string]$ItemProperties = "extend"
+        }    
+    }
+    if ($IncludeInterfaces){
+        If (!$InterfaceProperties){
+            $InterfaceProperties = @("ip","port")
+        }
+        elseif($InterfaceProperties -contains "extend"){
+            [string]$InterfaceProperties = "extend"
         }    
     }
 
@@ -208,7 +217,7 @@ function Get-ZXHost {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectInheritedTags" -Value @("tag","value")
     }
     if ($IncludeInterfaces) {
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectInterfaces" -Value "extend"
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectInterfaces" -Value $InterfaceProperties
     }
     if ($IncludeMacros) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectMacros" -Value "extend"
