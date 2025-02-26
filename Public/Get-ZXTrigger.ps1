@@ -28,7 +28,7 @@ function Get-ZXTrigger {
     
     #Validate parameters
     if (!$Output){
-        $Output = @("hostid","host","name","status","proxy_hostid")
+        $Output = @("triggerid","description","expression","status","type","state")
     }
     elseif($Output -contains "extend") {
         [string]$Output = "extend"
