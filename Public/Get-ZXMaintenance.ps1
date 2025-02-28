@@ -3,8 +3,11 @@ function Get-ZXMaintenance {
         [array]$GroupId,
         [array]$HostId,
         [array]$Maintenanceid,
+        [array]$Output,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
+        [switch]$IncludeTimePeriods,
+        [array]$TimePeriodProperties,
         [switch]$WhatIf
     )
 
@@ -15,6 +18,24 @@ function Get-ZXMaintenance {
         $PSObjShow.auth = "*****"
         $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
         Write-Host -ForegroundColor Cyan $JsonShow
+    }
+
+    #Validate Parameters
+
+    if (!$Output){
+        [string]$Output = "extend"
+    }
+    elseif($Output -contains "extend") {
+        [string]$Output = "extend"
+    }
+
+    if ($IncludeTimePeriods){
+        If (!$TimePeriodProperties){
+            [string]$TimePeriodProperties = "extend"
+        }
+        elseif($TimePeriodProperties -contains "extend"){
+            [string]$TimePeriodProperties = "extend"
+        }    
     }
     
 
@@ -30,7 +51,12 @@ function Get-ZXMaintenance {
     if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostID
     }
-    #$PSObj.params.output = "extend"
+    if ($IncludeTimePeriods){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTimeperiods" -Value $TimePeriodProperties
+    }
+
+    $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
+
     $Json =  $PSObj | ConvertTo-Json -Depth 3
 
     #Show JSON Request if -ShowJsonRequest switch is used
