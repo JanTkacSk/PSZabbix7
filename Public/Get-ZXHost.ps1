@@ -16,7 +16,7 @@ function Get-ZXHost {
         [array]$HostID,
         [ValidateSet("0","1","Enabled","Disabled")]
         [string]$Status,
-        [bool]$InMaintenance,
+        [string]$InMaintenance,
         [switch]$ShowJsonRequest,
         [switch]$ShowResponseTime,
         [switch]$ShowJsonResponse,
@@ -199,8 +199,15 @@ function Get-ZXHost {
         AddFilter -PropertyName "status" -PropertyValue $Status
     }
 
-    AddFilter -PropertyName "maintenance_status" -PropertyValue "$InMaintenance"
-
+    #Get only hosts which are in maintenance or only hosts which are not in maintenance
+    #Boolean is converted to number.
+    if($InMaintenance){
+        switch ($InMaintenance) {
+            "False" {$InMaintenance = "0"}
+            "True" {$InMaintenance = "1"}
+        }
+        AddFilter -PropertyName "maintenance_status" -PropertyValue $InMaintenance
+    }
 
     if ($IncludeParentTemplates) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectParentTemplates" -Value @("templateid","name")
