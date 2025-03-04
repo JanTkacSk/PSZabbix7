@@ -1,13 +1,17 @@
 function Get-ZXMaintenance {
     param(
-        [array]$GroupId,
-        [array]$HostId,
-        [array]$Maintenanceid,
+        [array]$GroupID,
+        [array]$HostID,
+        [array]$MaintenanceID,
         [array]$Output,
+        [switch]$IncludeHostGroups,
+        [switch]$IncludeHosts,
+        [switch]$IncludeTags,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
         [switch]$IncludeTimePeriods,
         [array]$TimePeriodProperties,
+        [int]$Limit,
         [switch]$WhatIf
     )
 
@@ -51,9 +55,29 @@ function Get-ZXMaintenance {
     if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostID
     }
+    if ($GroupID){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value $GroupID
+    }
+    if ($MaintenanceID){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "maintenanceids" -Value $MaintenanceID
+    }
     if ($IncludeTimePeriods){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTimeperiods" -Value $TimePeriodProperties
     }
+    if ($IncludeHosts){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectHosts" -Value @("hostid","host")
+    }
+    if ($IncludeHostGroups){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectHostGroups" -Value @("groupid","name")
+    }
+    if ($IncludeTags){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value @("tag","value")
+    }
+    if($Limit){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
+    }
+    
+
 
     $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
 
@@ -72,6 +96,13 @@ function Get-ZXMaintenance {
     if(!$WhatIf){
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
     }
+    if($WhatIf){
+        Write-Host -ForegroundColor Yellow "JSON REQUEST"
+        $PSObjShow = $PSObj
+        $PSObjShow.auth = "*****"
+        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
+        Write-Host -ForegroundColor Cyan $JsonShow
+    }
 
     If ($ShowJsonResponse){
         Write-Host -ForegroundColor Yellow "JSON RESPONSE"
@@ -79,7 +110,7 @@ function Get-ZXMaintenance {
     }
     
     #Add human readable creation time to the object
-    $Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
+    #$Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
     
     #This will be returned by the function
     if($null -ne $Request.error){
