@@ -109,9 +109,7 @@ function Get-ZXMaintenance {
         Write-Host -ForegroundColor Cyan $($request.result | ConvertTo-Json -Depth 5)
     }
     
-    #Add human readable creation time to the object
-    #$Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
-    
+ 
     #This will be returned by the function
     if($null -ne $Request.error){
         $Request.error
