@@ -16,6 +16,7 @@ function Get-ZXHost {
         [array]$HostID,
         [ValidateSet("0","1","Enabled","Disabled")]
         [string]$Status,
+        [ValidateSet("0","1","True","False")]
         [string]$InMaintenance,
         [switch]$ShowJsonRequest,
         [switch]$ShowResponseTime,
