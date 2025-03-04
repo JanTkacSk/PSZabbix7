@@ -255,6 +255,11 @@ function Get-ZXHost {
     if($WithItems){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "with_items" -Value "true"
     }
+    #Limit the number of returned hosts
+    if($Limit){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
+    }
+    
 
 
     #Convert the ps object to json. It is crucial to use a correct value for the -Depth
