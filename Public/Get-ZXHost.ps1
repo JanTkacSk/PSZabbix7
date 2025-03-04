@@ -16,6 +16,7 @@ function Get-ZXHost {
         [array]$HostID,
         [ValidateSet("0","1","Enabled","Disabled")]
         [string]$Status,
+        [bool]$InMaintenance,
         [switch]$ShowJsonRequest,
         [switch]$ShowResponseTime,
         [switch]$ShowJsonResponse,
@@ -189,14 +190,17 @@ function Get-ZXHost {
     #Return the host based on hostid
     if($HostID){AddFilter -PropertyName "hostid" -PropertyValue $HostID}
 
-        #Get only hosts with the given status 0 = enabled 1 = disabled
-        if($Status){
-            switch ($Status) {
-                "Enabled" {$Status = "0"}
-                "Disabled" {$Status = "1"}
-            }
-            AddFilter -PropertyName "status" -PropertyValue $Status
+    #Get only hosts with the given status 0 = enabled 1 = disabled
+    if($Status){
+        switch ($Status) {
+            "Enabled" {$Status = "0"}
+            "Disabled" {$Status = "1"}
         }
+        AddFilter -PropertyName "status" -PropertyValue $Status
+    }
+
+    AddFilter -PropertyName "maintenance_status" -PropertyValue "$InMaintenance"
+
 
     if ($IncludeParentTemplates) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectParentTemplates" -Value @("templateid","name")
@@ -282,7 +286,6 @@ function Get-ZXHost {
     If ($ShowResponseTime){
         Write-Host -ForegroundColor Yellow "Response time: " -NoNewline
         Write-Host -ForegroundColor Cyan "$($APICallResponseTime.TotalSeconds) seconds"
-
     }
     #This will be returned by the function
 
