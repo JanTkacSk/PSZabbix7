@@ -1,12 +1,22 @@
 function Get-ZXAction {
     param(
         [array]$ActionID,
-        [array]$EventID,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
-        [switch]$WhatIf
+        [switch]$WhatIf,
+        [array]$Output
     )
 
+    #Validate Parameters
+
+    if (!$Output){
+        $Output = [string]$Output = "extend"
+    }
+    elseif($Output -contains "extend") {
+        [string]$Output = "extend"
+    }
+
+    #Functions
     function ConvertFrom-UnixEpochTime ($UnixEpochTime){
         $customDate = (Get-Date -Date "01-01-1970") + ([System.TimeSpan]::FromSeconds($UnixEpochTime))
         $customDate
@@ -25,9 +35,7 @@ function Get-ZXAction {
     $PSObj = [PSCustomObject]@{
         "jsonrpc" = "2.0";
         "method" = "action.get";
-        "params" = [PSCustomObject]@{
-            "output"= "extend"
-        };
+        "params" = [PSCustomObject]@{};
         "id" = 1
         "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
     }
@@ -36,7 +44,9 @@ function Get-ZXAction {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "actionids" -Value @($ActionID)
     }
 
-    #$PSObj.params.output = "extend"
+    $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
+
+
     $Json =  $PSObj | ConvertTo-Json -Depth 3
 
     #Show JSON Request if -ShowJsonRequest switch is used
@@ -52,6 +62,9 @@ function Get-ZXAction {
     if(!$WhatIf){
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
     }
+    else {
+        ShowJsonRequest
+    }
 
     #Show JSON Response if -ShowJsonResponse switch is used
     If ($ShowJsonResponse){
@@ -65,7 +78,7 @@ function Get-ZXAction {
     }
     
     #Add human readable creation time to the object
-    $Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
+    #$Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
     
     #This will be returned by the function
     if($null -ne $Request.error){
