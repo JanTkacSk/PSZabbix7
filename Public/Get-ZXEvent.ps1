@@ -1,7 +1,7 @@
 function Get-ZXEvent {
     param(
-        [array]$HostIDs,
-        [array]$EventIDs,
+        [array]$HostID,
+        [array]$EventID,
         [switch]$IncludeTags,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
@@ -32,11 +32,11 @@ function Get-ZXEvent {
 
     }
 
-    if ($HostIDs){
+    if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostIDs
     }
-    if ($EventIDs){
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "eventids" -Value $EventIDs
+    if ($EventID){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "eventids" -Value $EventID
     }
     if ($IncludeTags){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value @("tag","value")
