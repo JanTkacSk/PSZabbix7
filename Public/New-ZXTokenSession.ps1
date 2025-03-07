@@ -13,7 +13,6 @@ function New-ZXTokenSession{
     #Create the tokens.txt file if it does not exist yet
     $SaveLocation = "$($env:LOCALAPPDATA)\ZXModule\Login\Tokens.txt"
     if (!( Test-Path $SaveLocation)){
-        Write-Host -ForegroundColor Yellow "Creating $SaveLocation"
         New-Item -ItemType File $SaveLocation -Force | Out-Null
     }
 
@@ -31,6 +30,8 @@ function New-ZXTokenSession{
     # Save the settings to registry. The settins are saved in a new subkey that has the same name as the zabbix api url
     # If you save the the settings for the same url again they will be overwritten
     if($Save){
+
+        Write-Host -ForegroundColor Yellow "Encrypting and saving the token in $SaveLocation"
         
         $NewObj = [pscustomobject]@{
             "Id" = ""
