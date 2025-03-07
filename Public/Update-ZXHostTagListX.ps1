@@ -137,12 +137,14 @@ function Update-ZXHostTagListX{
 
         #Save JSON Request if -WriteLog is not $false. Default is $true.
         If ($WriteLog){
+            $PSObjShow = $PSObj | ConvertTo-Json -Depth 5 | ConvertFrom-Json -Depth 5
+            $PSObjShow.auth = "*****"
             $RequestLogObject = [PSCustomObject]@{
                 "Time" = Get-Date -Format "MM/dd/yyyy HH:mm"
                 "Type" = "Request"
                 "CorrelationID" = $CorrelationID
                 "LoopID" = $LoopID
-                "RequestObject" = $PSObj
+                "RequestObject" = $PSObjShow
                 "Original Status" = $ZXHost
             }
             $LogObject.RequestResponse += $RequestLogObject              
