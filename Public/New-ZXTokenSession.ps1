@@ -13,7 +13,8 @@ function New-ZXTokenSession{
     #Create the tokens.txt file if it does not exist yet
     $SaveLocation = "$($env:LOCALAPPDATA)\ZXModule\Login\Tokens.txt"
     if (!( Test-Path $SaveLocation)){
-        New-Item -ItemType File $SaveLocation -Force
+        Write-Host -ForegroundColor Yellow "Creating $SaveLocation"
+        New-Item -ItemType File $SaveLocation -Force | Out-Null
     }
 
     # Set the variables for the current powershell session without saving them into registry
