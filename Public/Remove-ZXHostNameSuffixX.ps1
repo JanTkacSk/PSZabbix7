@@ -118,13 +118,15 @@ function Remove-ZXHostNameSuffixX{
 
         #Save JSON Request if -WriteLog is not $false. Default is $true.
         If ($WriteLog){
+            $PSObjShow = $PSObj | ConvertTo-Json -Depth 5 | ConvertFrom-Json -Depth 5
+            $PSObjShow.auth = "*****"
             $RequestLogObject = [PSCustomObject]@{
                 "Time" = Get-Date -Format "MM/dd/yyyy HH:mm"
                 "Type" = "Request"
                 "CorrelationID" = $CorrelationID
                 "LoopID" = $LoopID
                 "Original Status" = $ZXHost
-                "RequestObject" = $PSObj
+                "RequestObject" = $PSObjShow
             }
             $LogObject.RequestResponse += $RequestLogObject              
         }
