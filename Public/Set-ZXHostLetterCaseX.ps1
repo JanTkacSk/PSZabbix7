@@ -47,7 +47,7 @@ function Set-ZXHostLetterCaseX{
         continue
     }
 
-    function SetZXHostNameSuffixX {
+    function SetZXHostLetterCaseX {
         param(
             [string]$LoopID,
             [string]$HostId,
@@ -197,16 +197,16 @@ function Set-ZXHostLetterCaseX{
             return
         }
 
-    }#SetZXHostNameSuffixX
+    }#SetZXHostLetterCaseX
 
     if($HostName){
         foreach($Name in $HostName){
-            SetZXHostNameSuffixX -HostName $Name -LoopID $LoopID 
+            SetZXHostLetterCaseX -HostName $Name -LoopID $LoopID 
         }    
     }
     if($HostID){
         foreach($Id in $HostId){
-            SetZXHostNameSuffixX -HostId $Name -LoopID $LoopID 
+            SetZXHostLetterCaseX -HostId $Name -LoopID $LoopID 
         }    
     }
 
