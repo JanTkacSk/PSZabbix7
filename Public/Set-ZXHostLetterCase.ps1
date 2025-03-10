@@ -1,4 +1,4 @@
-function Set-ZXHostNameCase{
+function Set-ZXHostLetterCase{
     param(
         [string]$HostName,
         [switch]$ToUpper,

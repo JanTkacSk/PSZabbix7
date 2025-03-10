@@ -1,4 +1,4 @@
-function Set-ZXHostNameCaseX{
+function Set-ZXHostLetterCaseX{
     param(
         [array]$HostName,
         [array]$HostId,
