@@ -156,6 +156,7 @@ function Get-ZXItem {
     if ($Id){AddFilter -PropertyName "itemid" -PropertyValue $Id}
     if ($Key){AddFilter -PropertyName "key_" -PropertyValue $Key}
     if ($State){AddFilter -PropertyName "state" -PropertyValue $State}
+    if ($Type){AddFilter -PropertyName "type" -PropertyValue $Type}
     if ($Flag){AddFilter -PropertyName "flags" -PropertyValue $Flag}
     if ($Status){AddFilter -PropertyName "status" -PropertyValue $Status}
     # Looks like templateid is actually a parent item id
