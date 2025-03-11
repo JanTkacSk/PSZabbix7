@@ -115,7 +115,6 @@ function Set-ZXHostLetterCaseX{
             $NewHostName ="$($ZXHost.host)".ToLower()
         }
 
-        $NewHostName
         #Read the $ZXHost properties and use the values to fill in $PSobject properties. $PSobject is later converted to $json request
         $PSObj.params.hostid = $ZXHost.hostid
         $PSObj.params |  Add-Member -MemberType NoteProperty -Name "host" -Value $NewHostName
