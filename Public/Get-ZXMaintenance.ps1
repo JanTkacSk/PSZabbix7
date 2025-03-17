@@ -49,7 +49,7 @@ function Get-ZXMaintenance {
         "method" = "maintenance.get";
         "params" = [PSCustomObject]@{};
         "id" = 1;
-        "auth" = $ZXAPIToken | ConvertFrom-SecureString -AsPlainText; 
+        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
     }
 
     if ($HostID){
