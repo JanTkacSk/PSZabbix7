@@ -2,10 +2,10 @@ function Get-ZXHistory {
     param(
         [parameter(mandatory="false")]
         [array]$ItemID,
-        [int]$Limit=5,
+        [int]$Limit,
         [string]$SortField="clock",
         [string]$SortOrder="DESC",
-        [string]$History=1,
+        [int]$History,
         [string]$Output="extend",
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
