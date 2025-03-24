@@ -6,6 +6,8 @@ function Get-ZXHistory {
         [string]$SortField="clock",
         [string]$SortOrder="DESC",
         [int]$History,
+        [int]$TimeFrom,
+        [int]$TimeTill,
         [string]$Output="extend",
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
@@ -44,6 +46,8 @@ function Get-ZXHistory {
     if ($SortField){$PSObj.params | Add-Member -MemberType NoteProperty -Name "sortfield" -Value $SortField}
     if ($SortOrder){$PSObj.params | Add-Member -MemberType NoteProperty -Name "sortorder" -Value $SortOrder}
     if ($History){$PSObj.params | Add-Member -MemberType NoteProperty -Name "history" -Value $History}
+    if ($TimeTill){$PSObj.params | Add-Member -MemberType NoteProperty -Name "time_till" -Value $TimeTill}
+    if ($TimeFrom){$PSObj.params | Add-Member -MemberType NoteProperty -Name "time_from" -Value $TimeFrom}
     if ($Output){$PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output}
     
     $Json =  $PSObj | ConvertTo-Json -Depth 3
