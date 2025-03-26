@@ -110,7 +110,7 @@ function Set-ZXHostName{
         return
     } 
     elseif ($null -ne $Request.result) {
-        Write-Host -ForegroundColor Green "[$($Request.result.hostids)] $HostName > $NewHostName"
+        Write-Host -ForegroundColor Green "[$($Request.result.hostids)] $HostName => $NewHostName"
         return
     }
     elseif(!$WhatIf) {

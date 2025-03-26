@@ -129,7 +129,7 @@ function Get-ZXItem {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectItemDiscovery" -Value $ItemDiscoveryProperties
     }
     if ($GroupID) {
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value @($GroupIDs)
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value @($GroupID)
     }
     if ($TemplateIDs) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "templateids" -Value @($TemplateIDs)
