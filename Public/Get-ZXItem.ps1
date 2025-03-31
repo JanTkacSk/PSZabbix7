@@ -24,6 +24,7 @@ function Get-ZXItem {
         [string]$SortOrder,
         [string]$NameSearch,
         [switch]$IncludeHosts,
+        [switch]$IncludeTags,
         [switch]$IncludeDiscoveryRule,
         [switch]$WildCardsEnabled,
         [array]$DiscoveryRuleProperties,
@@ -121,6 +122,10 @@ function Get-ZXItem {
     # Add "selectHosts" parameter to return all hosts linked tho the templates.
     if ($IncludeHosts) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectHosts" -Value $HostProperties
+    }
+    # Add "selecTags" parameter to return all hosts linked tho the templates.
+    if ($IncludeTags) {
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value "extend"
     }
     if ($IncludeDiscoveryRule) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectDiscoveryRule" -Value $DiscoveryRuleProperties
