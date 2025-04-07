@@ -3,11 +3,20 @@ function Get-ZXEvent {
         [array]$HostID,
         [array]$EventID,
         [switch]$IncludeTags,
+        [array]$Output,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
         [switch]$WhatIf
     )
-
+    #Validate Parameters
+    if (!$Output){
+        $Output = @("eventid","name")
+        
+    }
+    elseif($Output -contains "extend") {
+        [string]$Output = "extend"
+    }
+    
     function ConvertFrom-UnixEpochTime ($UnixEpochTime){
         $customDate = (Get-Date -Date "01-01-1970") + ([System.TimeSpan]::FromSeconds($UnixEpochTime))
         $customDate
@@ -32,6 +41,9 @@ function Get-ZXEvent {
 
     }
 
+    if ($Output){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
+    }
     if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostIDs
     }
@@ -41,6 +53,7 @@ function Get-ZXEvent {
     if ($IncludeTags){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value @("tag","value")
     }
+
 
     $Json =  $PSObj | ConvertTo-Json -Depth 5
 
@@ -59,7 +72,7 @@ function Get-ZXEvent {
     }
     
     #Add human readable creation time to the object
-    $Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
+    #$Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
     
     #This will be returned by the function
     if($null -ne $Request.error){

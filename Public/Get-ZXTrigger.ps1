@@ -9,6 +9,7 @@ function Get-ZXTrigger {
         [switch]$IncludeHosts,
         [switch]$IncludeHostGroups,
         [switch]$IncludeItems,
+        [switch]$IncludeTags,
         [switch]$IncludeFunctions,
         [switch]$IncludeDependencies,
         [switch]$ShowJsonRequest,
@@ -67,10 +68,16 @@ function Get-ZXTrigger {
     if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostID
     }
+    if ($TriggerId){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "triggerids" -Value $TriggerId
+    }
 
     # Add "selectHosts" parameter to return all hosts linked tho the templates.
     if ($IncludeHosts){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectHosts" -Value @("host","name","description")
+    }
+    if ($IncludeTags){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value "extend"
     }
 
     if ($HostGroupID){

@@ -14,6 +14,7 @@ function Get-ZXTemplate {
         [switch]$IncludeParentTemplates,
         [switch]$IncludeDiscoveries,
         [switch]$IncludeItems,
+        [switch]$IncludeTriggers,
         [array]$ItemProperties,
         [array]$DiscoveryProperties,
         [array]$Output,
@@ -75,6 +76,14 @@ function Get-ZXTemplate {
         }
         elseif($ItemProperties -contains "extend"){
             [string]$ItemProperties = "extend"
+        }    
+    }
+    if ($IncludeTriggers){
+        If (!$TriggerProperties){
+            $TriggerProperties = @("description","priority","status")
+        }
+        elseif($TriggerProperties -contains "extend"){
+            [string]$TriggerProperties = "extend"
         }    
     }
     if ($IncludeHosts){
@@ -148,6 +157,9 @@ function Get-ZXTemplate {
     }
     if ($IncludeItems) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectItems" -Value $ItemProperties
+    }
+    if ($IncludeTriggers) {
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTriggers" -Value $TriggerProperties
     }
     if ($IncludeTags) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value $TagProperties
