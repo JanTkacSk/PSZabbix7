@@ -5,6 +5,7 @@ function Get-ZXHistory {
         [int]$Limit,
         [string]$SortField="clock",
         [string]$SortOrder="DESC",
+        [parameter(mandatory="true")]
         [int]$History,
         [int]$TimeFrom,
         [int]$TimeTill,
