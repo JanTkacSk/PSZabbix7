@@ -2,7 +2,7 @@ function Update-ZXMaintenance {
     param(
         [array]$GroupID,
         [array]$HostID,
-        [array]$MaintenanceID,
+        [string]$MaintenanceID,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
         [switch]$WhatIf
@@ -19,30 +19,7 @@ function Update-ZXMaintenance {
 
     #Validate Parameters
 
-
-
-    #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj = [PSCustomObject]@{
-        "jsonrpc" = "2.0";
-        "method" = "maintenance.update";
-        "params" = [PSCustomObject]@{};
-        "id" = 1;
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-    }
-
-    if ($HostID){
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostID
-    }
-    if ($GroupID){
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value $GroupID
-    }
-    if ($MaintenanceID){
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "maintenanceids" -Value $MaintenanceID
-    }
-
-    $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
-
-    $Json =  $PSObj | ConvertTo-Json -Depth 3
+    #Functions
 
     # Create an array of objects from a simple array. Each object has only one property $PropertyName (you choose the name).
     # For example from the following array "1234","4321" it creates two objects "hostid" = "1234" and "hostid" = "4321"
@@ -55,6 +32,31 @@ function Update-ZXMaintenance {
         $Result
         return
     }
+
+    #Basic PS Object wich will be edited based on the used parameters and finally converted to json
+    $PSObj = [PSCustomObject]@{
+        "jsonrpc" = "2.0";
+        "method" = "maintenance.update";
+        "params" = [PSCustomObject]@{};
+        "id" = 1;
+        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
+    }
+
+    if ($HostID){
+        $HostIDObjects = ConvertArrayToObjects -PropertyName "hostid" -Array $HostID
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "hosts" -Value @($HostIDObjects)
+    }
+    if ($GroupID){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value $GroupID
+    }
+    if ($MaintenanceID){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "maintenance" -Value $MaintenanceID
+    }
+
+    $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
+
+    $Json =  $PSObj | ConvertTo-Json -Depth 3
+
 
     #Show JSON Request if -ShowJsonRequest switch is used
     If ($ShowJsonRequest){
