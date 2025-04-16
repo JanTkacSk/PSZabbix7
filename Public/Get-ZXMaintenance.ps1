@@ -3,6 +3,8 @@ function Get-ZXMaintenance {
         [array]$GroupID,
         [array]$HostID,
         [array]$MaintenanceID,
+        [string]$Name,
+        [string]$NameSearch,
         [array]$Output,
         [switch]$IncludeHostGroups,
         [switch]$IncludeHosts,
@@ -41,6 +43,28 @@ function Get-ZXMaintenance {
             [string]$TimePeriodProperties = "extend"
         }    
     }
+
+    #Functions
+
+    #Function to add a filter parameter to the PS object
+    function AddFilter($PropertyName,$PropertyValue){
+        #Check if filter is already in the object or not and if not, add it.
+        if ($null -eq $PSObj.params.filter){
+            $PSObj.params | Add-Member -MemberType NoteProperty -Name "filter" -Value ([PSCustomObject]@{})
+        }
+        #Add a specific property to the filter
+        $PSObj.params.filter | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
+    }
+
+    #Function to add a Search parameter to the PS object
+    function AddSearch($PropertyName,$PropertyValue){
+        #Check if search is already in the object or not and if not, add it.
+        if ($null -eq $PSObj.params.search){
+            $PSObj.params | Add-Member -MemberType NoteProperty -Name "search" -Value ([PSCustomObject]@{})
+        }
+        #Add a specific property to the filter
+        $PSObj.params.search | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
+    }
     
 
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
@@ -52,6 +76,16 @@ function Get-ZXMaintenance {
         "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
     }
 
+    #Return a maintenance based on host name FILTER
+    if($Name){
+        AddFilter -PropertyName "name" -PropertyValue $Name
+    }
+
+    #Return a maintenance  based on host name SEARCH. 
+    if($NameSearch){
+        AddSearch -PropertyName "name" -PropertyValue $NameSearch
+    }
+    
     if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostID
     }
