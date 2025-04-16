@@ -53,8 +53,6 @@ function Update-ZXMaintenance {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "maintenance" -Value $MaintenanceID
     }
 
-    $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
-
     $Json =  $PSObj | ConvertTo-Json -Depth 3
 
 
