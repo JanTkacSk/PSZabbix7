@@ -1,7 +1,7 @@
 function Update-ZXMaintenance {
     param(
         [array]$GroupID,
-        [array]$HostID,
+        [array]$HostIDReplace,
         [string]$MaintenanceID,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
@@ -42,15 +42,15 @@ function Update-ZXMaintenance {
         "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
     }
 
-    if ($HostID){
-        $HostIDObjects = ConvertArrayToObjects -PropertyName "hostid" -Array $HostID
+    if ($HostIDReplace){
+        $HostIDObjects = ConvertArrayToObjects -PropertyName "hostid" -Array $HostIDReplace
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hosts" -Value @($HostIDObjects)
     }
     if ($GroupID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value $GroupID
     }
     if ($MaintenanceID){
-        $PSObj.params | Add-Member -MemberType NoteProperty -Name "maintenance" -Value $MaintenanceID
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "maintenanceid" -Value $MaintenanceID
     }
 
     $Json =  $PSObj | ConvertTo-Json -Depth 3
