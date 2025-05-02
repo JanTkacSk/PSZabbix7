@@ -29,7 +29,6 @@ function Remove-ZXHost{
     if($null -eq $ZXHost.hostid){
         Write-Host -ForegroundColor Yellow "[Not Found]" -NoNewline
         Write-Host " $HostId"
-        $LogObject.HostsNotFound += $HostId
         Continue
     }
 
