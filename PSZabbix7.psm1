@@ -1318,7 +1318,14 @@ function Get-ZXHost {
             [string]$InterfaceProperties = "extend"
         }    
     }
-
+        if ($IncludeInventory){
+        If (!$InventoryProperties){
+            $InventoryProperties = "extend"
+        }
+        elseif($InterfaceProperties -contains "extend"){
+            [string]$InterfaceProperties = "extend"
+        }    
+    }
     if ($IncludeTriggers){
         If (!$TriggerProperties){
             $TriggerProperties = @("name","value")
@@ -1462,6 +1469,9 @@ function Get-ZXHost {
     }
     if ($IncludeHostGroups) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectGroups" -Value @("groupid","name")
+    }
+    if ($IncludeInventory) {
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectInventory" -Value $InventoryProperties
     }
     if ($IncludeTags) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value @("tag","value")
