@@ -49,6 +49,7 @@ function Get-ZXHost {
         [int]$Limit,
         [switch]$WhatIf,
         [array]$ItemProperties,
+        [array]$InventoryProperties,
         [array]$InterfaceProperties,
         [array]$TriggerProperties
 
@@ -73,7 +74,7 @@ function Get-ZXHost {
     }
         if ($IncludeInventory){
         If (!$InventoryProperties){
-            $InventoryProperties = "extend"
+            [string]$InventoryProperties = "extend"
         }
         elseif($InterfaceProperties -contains "extend"){
             [string]$InterfaceProperties = "extend"

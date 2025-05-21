@@ -1296,6 +1296,7 @@ function Get-ZXHost {
         [int]$Limit,
         [switch]$WhatIf,
         [array]$ItemProperties,
+        [array]$InventoryProperties,
         [array]$InterfaceProperties,
         [array]$TriggerProperties
 
