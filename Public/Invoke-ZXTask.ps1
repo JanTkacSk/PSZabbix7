@@ -27,7 +27,7 @@ function Invoke-ZXTask {
         foreach ($item in $Array){
             $Result += @{"type"="6";
                 "request"=[PSCustomObject]@{
-                    "$PropertyName" = $item
+                    "$PropertyName" = "$item"
                 }
             }
         }
