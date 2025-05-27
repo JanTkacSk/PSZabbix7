@@ -72,11 +72,11 @@ function Get-ZXHost {
             [string]$InterfaceProperties = "extend"
         }    
     }
-        if ($IncludeInventory){
-        If (!$InventoryProperties){
+    if ($IncludeInventory){
+        if (!$InventoryProperties){
             [string]$InventoryProperties = "extend"
         }
-        elseif($InterfaceProperties -contains "extend"){
+        elseif($InventoryProperties -contains "extend"){
             [string]$InterfaceProperties = "extend"
         }    
     }

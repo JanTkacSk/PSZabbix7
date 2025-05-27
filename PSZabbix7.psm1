@@ -1319,11 +1319,11 @@ function Get-ZXHost {
             [string]$InterfaceProperties = "extend"
         }    
     }
-        if ($IncludeInventory){
-        If (!$InventoryProperties){
-            $InventoryProperties = "extend"
+    if ($IncludeInventory){
+        if (!$InventoryProperties){
+            [string]$InventoryProperties = "extend"
         }
-        elseif($InterfaceProperties -contains "extend"){
+        elseif($InventoryProperties -contains "extend"){
             [string]$InterfaceProperties = "extend"
         }    
     }
@@ -3442,7 +3442,7 @@ function Invoke-ZXTask {
         foreach ($item in $Array){
             $Result += @{"type"="6";
                 "request"=[PSCustomObject]@{
-                    "$PropertyName" = $item
+                    "$PropertyName" = "$item"
                 }
             }
         }
