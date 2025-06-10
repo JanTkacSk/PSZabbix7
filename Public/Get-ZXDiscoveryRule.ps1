@@ -3,7 +3,6 @@ function Get-ZXDiscoveryRule {
         [array]$ItemID,
         [array]$GroupID,
         [array]$HostID,
-        [array]$TemplateID,
         [string]$Limit,
         [string]$State,
         [string]$Status,
