@@ -9,9 +9,35 @@ function Get-ZXAuditLog {
         [string]$Limit,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
-        [switch]$WhatIf
+        [switch]$WhatIf,
+        [int]$StartDate,
+        [int]$StartDaysAgo
+    )
+    #Validate Parameters
+    if($StartDate -and $StartDaysAgo){
+        Write-Host -ForegroundColor Yellow "Only one start date can be used !"
+        continue
+    }
+
+    function ConvertTo-UnixTime{
+    param(
+        [datetime]$StandardTime
     )
 
+    #This is when unix epoch started - 01 January 1970 00:00:00.
+    $Origin = [datetime]::UnixEpoch
+    foreach ($ST in $StandardTime){
+        $UnixTime = $ST - $Origin | Select-Object -ExpandProperty TotalSeconds
+        Write-Output $UnixTime
+    }
+}
+
+    if ($StartDaysAgo){
+        $StartDateWindows = (Get-Date).AddDays(-$($StartDaysAgo))
+        $StartDateUnix = ConvertTo-UnixTime -StandardTime $StartDateWindows
+    }
+
+    $StartDateUnix
     #Function to add a FILTER parameter to the PS object
     function AddFilter($PropertyName,$PropertyValue){
         #Check if filter is already in the object or not and if not, add it.
