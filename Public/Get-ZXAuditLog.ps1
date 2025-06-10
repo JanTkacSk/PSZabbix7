@@ -35,9 +35,8 @@ function Get-ZXAuditLog {
     if ($StartDaysAgo){
         $StartDateWindows = (Get-Date).AddDays(-$($StartDaysAgo))
         $StartDateUnix = ConvertTo-UnixTime -StandardTime $StartDateWindows
+        $StartDateUnix
     }
-
-    $StartDateUnix
     #Function to add a FILTER parameter to the PS object
     function AddFilter($PropertyName,$PropertyValue){
         #Check if filter is already in the object or not and if not, add it.
