@@ -2279,7 +2279,7 @@ function Get-ZXMaintenance {
         $Origin = [datetime]::UnixEpoch
         foreach ($UT in $UnixTime){
             $StandardTime = $Origin.AddSeconds($UT)
-            Write-Output $StandardTime
+            return $StandardTime
         }
     }
 
@@ -2413,16 +2413,16 @@ function Get-ZXMaintenance {
             if ($Result.timeperiods -ne $null){
                     foreach($TimePeriod in $Result.timeperiods){
                         $TimePeriod | Add-Member -MemberType ScriptProperty -Name "start_date(converted)" -Value{
-                        $(ConvertFrom-UnixTime $this.start_date)
+                        $(ConvertFrom-UnixTime -UnixTime $this.start_date)
                     }
                 }
 
             }
             $Result | Add-Member -MemberType ScriptProperty -Name "active_since(converted)" -Value{
-                $(ConvertFrom-UnixTime $this.active_since)
+                $(ConvertFrom-UnixTime -UnixTime $this.active_since)
             }
             $Result | Add-Member -MemberType ScriptProperty -Name "active_till(converted)" -Value{
-                $(ConvertFrom-UnixTime $this.active_till)
+                $(ConvertFrom-UnixTime -UnixTime $this.active_till)
             }
             $Result
             return 

@@ -7,3 +7,4 @@ foreach ($Function in $FunctionFiles){
 }
 
 $ModuleFileContent | Out-File $ModuleFile -Force
+

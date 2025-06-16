@@ -29,14 +29,12 @@ function Get-ZXMaintenance {
     #A function to convert unix time to standard time.
     function ConvertFrom-UnixTime{
         param(
-            [array]$UnixTime
+            [int]$UnixTime
         )
         #This is when unix epoch started - 01 January 1970 00:00:00.
         $Origin = [datetime]::UnixEpoch
-        foreach ($UT in $UnixTime){
-            $StandardTime = $Origin.AddSeconds($UT)
-            return $StandardTime
-        }
+        $StandardTime = $Origin.AddSeconds($UnixTime)
+        return $StandardTime
     }
 
     #Validate Parameters
@@ -164,7 +162,6 @@ function Get-ZXMaintenance {
     } 
     else {
         if($ConvertClock){
-          
             $Result = $Request.result
             if ($Result.timeperiods -ne $null){
                     foreach($TimePeriod in $Result.timeperiods){
