@@ -14,7 +14,6 @@ function Get-ZXMaintenance {
         [switch]$IncludeTimePeriods,
         [array]$TimePeriodProperties,
         [int]$Limit,
-        [switch]$ConvertClock,
         [switch]$WhatIf
     )
 
