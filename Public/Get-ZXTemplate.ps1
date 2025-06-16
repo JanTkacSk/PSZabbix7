@@ -12,6 +12,7 @@ function Get-ZXTemplate {
         [switch]$IncludeTags,
         [array]$TagProperties,
         [switch]$IncludeParentTemplates,
+        [switch]$IncludeTemplates,
         [switch]$IncludeDiscoveries,
         [switch]$IncludeItems,
         [switch]$IncludeTriggers,
@@ -151,6 +152,9 @@ function Get-ZXTemplate {
     #Add "selectPatentTemplates" to return all templates that are are a child of this template, sounds counterintuitive
     if ($IncludeParentTemplates) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectParentTemplates" -Value "extend"
+    }
+    if ($IncludeTemplates) {
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTemplates" -Value "extend"
     }
     if ($IncludeDiscoveries) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectDiscoveries" -Value $DiscoveryProperties

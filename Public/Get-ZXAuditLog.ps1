@@ -31,12 +31,7 @@ function Get-ZXAuditLog {
         Write-Output $UnixTime
     }
 }
-#This is unfinished
-    if ($StartDaysAgo){
-        $StartDateWindows = (Get-Date).AddDays(-$($StartDaysAgo))
-        $StartDateUnix = ConvertTo-UnixTime -StandardTime $StartDateWindows
-        $StartDateUnix
-    }
+
 
     
     #Function to add a FILTER parameter to the PS object
@@ -79,6 +74,15 @@ function Get-ZXAuditLog {
         "id" = 1
     }
 
+    # add time_from propertie
+    if ($StartDaysAgo){
+        $StartDateWindows = (Get-Date).AddDays(-$($StartDaysAgo))
+        $StartDateUnix =  ConvertTo-UnixTime -StandardTime $StartDateWindows
+        $StartDateUnix = "$([int]([System.Math]::Floor($StartDateUnix)))"
+
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "time_from" -Value $StartDateUnix
+    }
+    
     if($Limit){$PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit}
     if($ResourceID){AddFilter -PropertyName "resourceid" -PropertyValue $ResourceID}
     if($ResourceIDSearch){AddSearch -PropertyName "resourceid" -PropertyValue $ResourceIDSearch}
@@ -88,7 +92,7 @@ function Get-ZXAuditLog {
     $Json =  $PSObj | ConvertTo-Json -Depth 3
 
     #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest){
+    If ($ShowJsonRequest -or $WhatIf){
         Write-Host -ForegroundColor Yellow "JSON REQUEST"
         $PSObjShow = $PSObj
         $PSObjShow.auth = "*****"
