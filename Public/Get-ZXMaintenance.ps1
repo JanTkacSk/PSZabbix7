@@ -35,7 +35,7 @@ function Get-ZXMaintenance {
         $Origin = [datetime]::UnixEpoch
         foreach ($UT in $UnixTime){
             $StandardTime = $Origin.AddSeconds($UT)
-            Write-Output $StandardTime
+            return $StandardTime
         }
     }
 
