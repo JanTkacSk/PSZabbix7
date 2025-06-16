@@ -12,7 +12,6 @@ function Get-ZXMaintenance {
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
         [switch]$IncludeTimePeriods,
-        [switch]$Active,
         [array]$TimePeriodProperties,
         [int]$Limit,
         [switch]$WhatIf
