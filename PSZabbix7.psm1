@@ -2258,6 +2258,7 @@ function Get-ZXMaintenance {
         [switch]$IncludeTimePeriods,
         [array]$TimePeriodProperties,
         [int]$Limit,
+        [switch]$ConvertClock,
         [switch]$WhatIf
     )
 
@@ -2269,6 +2270,19 @@ function Get-ZXMaintenance {
         $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
         Write-Host -ForegroundColor Cyan $JsonShow
     }
+    <#A function to convert unix time to standard time.
+    function ConvertFrom-UnixTime{
+        param(
+            [array]$UnixTime
+        )
+        #This is when unix epoch started - 01 January 1970 00:00:00.
+        $Origin = [datetime]::UnixEpoch
+        foreach ($UT in $UnixTime){
+            $StandardTime = $Origin.AddSeconds($UT)
+            Write-Output $StandardTime
+        }
+    }
+        #>
 
     #Validate Parameters
 
@@ -2394,8 +2408,30 @@ function Get-ZXMaintenance {
         return
     } 
     else {
-        $Request.result
-        return
+        if($ConvertClock){
+          
+            $Result = $Request.result
+            if ($Result.timeperiods -ne $null){
+                    foreach($TimePeriod in $Result.timeperiods){
+                        $TimePeriod | Add-Member -MemberType ScriptProperty -Name "start_date(converted)" -Value{
+                        $(ConvertFrom-UnixTime $this.start_date)
+                    }
+                }
+
+            }
+            $Result | Add-Member -MemberType ScriptProperty -Name "active_since(converted)" -Value{
+                $(ConvertFrom-UnixTime $this.active_since)
+            }
+            $Result | Add-Member -MemberType ScriptProperty -Name "active_till(converted)" -Value{
+                $(ConvertFrom-UnixTime $this.active_till)
+            }
+            $Result
+            return 
+        }
+        else{
+            $Request.result
+            return
+        }
     }
 }
 

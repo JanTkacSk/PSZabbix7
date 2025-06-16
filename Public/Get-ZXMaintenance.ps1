@@ -26,7 +26,7 @@ function Get-ZXMaintenance {
         $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
         Write-Host -ForegroundColor Cyan $JsonShow
     }
-    <#A function to convert unix time to standard time.
+    A function to convert unix time to standard time.
     function ConvertFrom-UnixTime{
         param(
             [array]$UnixTime
@@ -38,7 +38,6 @@ function Get-ZXMaintenance {
             Write-Output $StandardTime
         }
     }
-        #>
 
     #Validate Parameters
 
@@ -168,10 +167,10 @@ function Get-ZXMaintenance {
           
             $Result = $Request.result
             if ($Result.timeperiods -ne $null){
-                foreach($TimePeriod in $Result.timeperiods){
-                    $TimePeriod | Add-Member -MemberType ScriptProperty -Name "start_date(converted)" -Value{
-                    $(ConvertFrom-UnixTime $this.start_date)
-                }
+                    foreach($TimePeriod in $Result.timeperiods){
+                        $TimePeriod | Add-Member -MemberType ScriptProperty -Name "start_date(converted)" -Value{
+                        $(ConvertFrom-UnixTime $this.start_date)
+                    }
                 }
 
             }
