@@ -14,6 +14,7 @@ function Get-ZXMaintenance {
         [switch]$IncludeTimePeriods,
         [array]$TimePeriodProperties,
         [int]$Limit,
+        [switch]$StandardClock,
         [switch]$WhatIf
     )
 
@@ -163,7 +164,20 @@ function Get-ZXMaintenance {
         return
     } 
     else {
-        $Request.result
-        return
+        if($StandardClock){
+            $Result = $Request.result
+            $Result | Add-Member -MemberType ScriptProperty -Name "active_since_standard" -Value{
+                $(ConvertFrom-UnixTime $this.active_since)
+            }
+            $Result | Add-Member -MemberType ScriptProperty -Name "active_till_standard" -Value{
+                $(ConvertFrom-UnixTime $this.active_till)
+            }
+            $Result
+            return 
+        }
+        else{
+            $Request.result
+            return
+        }
     }
 }
