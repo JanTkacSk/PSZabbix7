@@ -2270,7 +2270,7 @@ function Get-ZXMaintenance {
         $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
         Write-Host -ForegroundColor Cyan $JsonShow
     }
-    <#A function to convert unix time to standard time.
+    A function to convert unix time to standard time.
     function ConvertFrom-UnixTime{
         param(
             [array]$UnixTime
@@ -2282,7 +2282,6 @@ function Get-ZXMaintenance {
             Write-Output $StandardTime
         }
     }
-        #>
 
     #Validate Parameters
 
