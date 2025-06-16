@@ -166,10 +166,10 @@ function Get-ZXMaintenance {
     else {
         if($StandardClock){
             $Result = $Request.result
-            $Result | Add-Member -MemberType ScriptProperty -Name "active_since_standard" -Value{
+            $Result | Add-Member -MemberType ScriptProperty -Name "active_since(converted)" -Value{
                 $(ConvertFrom-UnixTime $this.active_since)
             }
-            $Result | Add-Member -MemberType ScriptProperty -Name "active_till_standard" -Value{
+            $Result | Add-Member -MemberType ScriptProperty -Name "active_till_(converted)" -Value{
                 $(ConvertFrom-UnixTime $this.active_till)
             }
             $Result
