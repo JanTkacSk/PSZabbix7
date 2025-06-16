@@ -792,9 +792,31 @@ function Get-ZXAuditLog {
         [string]$Limit,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
-        [switch]$WhatIf
+        [switch]$WhatIf,
+        [int]$StartDate,
+        [int]$StartDaysAgo
+    )
+    #Validate Parameters
+    if($StartDate -and $StartDaysAgo){
+        Write-Host -ForegroundColor Yellow "Only one start date can be used !"
+        continue
+    }
+
+    function ConvertTo-UnixTime{
+    param(
+        [datetime]$StandardTime
     )
 
+    #This is when unix epoch started - 01 January 1970 00:00:00.
+    $Origin = [datetime]::UnixEpoch
+    foreach ($ST in $StandardTime){
+        $UnixTime = $ST - $Origin | Select-Object -ExpandProperty TotalSeconds
+        Write-Output $UnixTime
+    }
+}
+
+
+    
     #Function to add a FILTER parameter to the PS object
     function AddFilter($PropertyName,$PropertyValue){
         #Check if filter is already in the object or not and if not, add it.
@@ -835,6 +857,15 @@ function Get-ZXAuditLog {
         "id" = 1
     }
 
+    # add time_from propertie
+    if ($StartDaysAgo){
+        $StartDateWindows = (Get-Date).AddDays(-$($StartDaysAgo))
+        $StartDateUnix =  ConvertTo-UnixTime -StandardTime $StartDateWindows
+        $StartDateUnix = "$([int]([System.Math]::Floor($StartDateUnix)))"
+
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "time_from" -Value $StartDateUnix
+    }
+    
     if($Limit){$PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit}
     if($ResourceID){AddFilter -PropertyName "resourceid" -PropertyValue $ResourceID}
     if($ResourceIDSearch){AddSearch -PropertyName "resourceid" -PropertyValue $ResourceIDSearch}
@@ -844,7 +875,7 @@ function Get-ZXAuditLog {
     $Json =  $PSObj | ConvertTo-Json -Depth 3
 
     #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest){
+    If ($ShowJsonRequest -or $WhatIf){
         Write-Host -ForegroundColor Yellow "JSON REQUEST"
         $PSObjShow = $PSObj
         $PSObjShow.auth = "*****"
@@ -873,7 +904,6 @@ function Get-ZXDiscoveryRule {
         [array]$ItemID,
         [array]$GroupID,
         [array]$HostID,
-        [array]$TemplateID,
         [string]$Limit,
         [string]$State,
         [string]$Status,
@@ -2898,6 +2928,7 @@ function Get-ZXTemplate {
         [switch]$IncludeTags,
         [array]$TagProperties,
         [switch]$IncludeParentTemplates,
+        [switch]$IncludeTemplates,
         [switch]$IncludeDiscoveries,
         [switch]$IncludeItems,
         [switch]$IncludeTriggers,
@@ -3037,6 +3068,9 @@ function Get-ZXTemplate {
     #Add "selectPatentTemplates" to return all templates that are are a child of this template, sounds counterintuitive
     if ($IncludeParentTemplates) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectParentTemplates" -Value "extend"
+    }
+    if ($IncludeTemplates) {
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTemplates" -Value "extend"
     }
     if ($IncludeDiscoveries) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectDiscoveries" -Value $DiscoveryProperties
