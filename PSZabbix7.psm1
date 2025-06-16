@@ -2416,10 +2416,10 @@ function Get-ZXMaintenance {
 
             }
             $Result | Add-Member -MemberType ScriptProperty -Name "active_since(converted)" -Value{
-                $(ConvertFrom-UnixTime -UnixTime $this.active_since)
+                ConvertFrom-UnixTime -UnixTime $this.active_since
             }
             $Result | Add-Member -MemberType ScriptProperty -Name "active_till(converted)" -Value{
-                $(ConvertFrom-UnixTime -UnixTime $this.active_till)
+                ConvertFrom-UnixTime -UnixTime $this.active_till
             }
             $Result
             return 

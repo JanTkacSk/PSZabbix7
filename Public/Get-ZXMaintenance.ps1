@@ -161,28 +161,9 @@ function Get-ZXMaintenance {
         return
     } 
     else {
-        if($ConvertClock){
-            $Result = $Request.result
-            if ($Result.timeperiods -ne $null){
-                    foreach($TimePeriod in $Result.timeperiods){
-                        $TimePeriod | Add-Member -MemberType ScriptProperty -Name "start_date(converted)" -Value{
-                        $(ConvertFrom-UnixTime -UnixTime $this.start_date)
-                    }
-                }
 
-            }
-            $Result | Add-Member -MemberType ScriptProperty -Name "active_since(converted)" -Value{
-                ConvertFrom-UnixTime -UnixTime $this.active_since
-            }
-            $Result | Add-Member -MemberType ScriptProperty -Name "active_till(converted)" -Value{
-                ConvertFrom-UnixTime -UnixTime $this.active_till
-            }
-            $Result
-            return 
-        }
-        else{
-            $Request.result
-            return
-        }
+        $Request.result
+        return
+
     }
 }
