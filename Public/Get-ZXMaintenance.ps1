@@ -13,6 +13,7 @@ function Get-ZXMaintenance {
         [switch]$ShowJsonResponse,
         [switch]$IncludeTimePeriods,
         [array]$TimePeriodProperties,
+        [switch]$CountOutput,
         [int]$Limit,
         [switch]$WhatIf
     )
@@ -110,6 +111,10 @@ function Get-ZXMaintenance {
     }
     if($Limit){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
+    }
+    #Return only output count
+    if($CountOutput){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "countOutput" -Value "true"
     }
     
 
