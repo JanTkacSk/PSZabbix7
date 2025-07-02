@@ -51,7 +51,8 @@ function Get-ZXHost {
         [array]$ItemProperties,
         [array]$InventoryProperties,
         [array]$InterfaceProperties,
-        [array]$TriggerProperties
+        [array]$TriggerProperties,
+        [array]$DiscoveryProperties
 
     )
 
@@ -86,6 +87,14 @@ function Get-ZXHost {
         }
         elseif($TriggerProperties -contains "extend"){
             [string]$TriggerProperties = "extend"
+        }    
+    }
+    if ($IncludeDiscoveries){
+        If (!$DiscoveryProperties){
+            $DiscoveryProperties = @("name")
+        }
+        elseif($DiscoveryProperties -contains "extend"){
+            [string]$DiscoveryProperties = "extend"
         }    
     }
 
@@ -250,6 +259,9 @@ function Get-ZXHost {
     }
     if ($IncludeTriggers) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTriggers" -Value $TriggerProperties
+    }
+    if ($IncludeDiscoveries) {
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectDiscoveries" -Value $DiscoveryProperties
     }
     # Return only hosts that are linked to the given templates.
     if ($TemplateIDs) {
