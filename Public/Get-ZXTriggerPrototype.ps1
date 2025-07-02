@@ -5,7 +5,7 @@ function Get-ZXTriggerPrototype {
         [int]$Limit,
         [int]$Status,
         [array]$Key,
-        [array]$DiscoveryIDs,
+        [array]$DiscoveryID,
         [string]$KeySearch,
         [string]$Type,
         [string]$TypeSearch,
@@ -106,8 +106,14 @@ function Get-ZXTriggerPrototype {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostID
     }
     #Get the triggers with the specified IDs
-    if ($TriggerID){
+    if ($TriggerID)
+    {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "triggerids" -Value $TriggerID
+    }
+    #Get the triggers with the specified DiscoveryIDs
+    if ($DiscoveryID)
+    {
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "discoveryids" -Value $DiscoveryID
     }
     # Add "selectHosts" parameter to return all hosts linked tho the templates.
     if ($IncludeHosts) {
