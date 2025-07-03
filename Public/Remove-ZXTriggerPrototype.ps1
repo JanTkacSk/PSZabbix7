@@ -1,6 +1,6 @@
 function Remove-ZXTriggerPrototype{
     param(
-        [array]$TriggerPrototypeID,
+        [array]$TriggerID,
         [switch]$WhatIf,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse
@@ -20,7 +20,7 @@ function Remove-ZXTriggerPrototype{
     $PSObj  = [PSCustomObject]@{
         "jsonrpc" = "2.0"; 
         "method" = "triggerprototype.delete"; 
-        "params" = $TriggerPrototypeID; 
+        "params" = $TriggerID;
         "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
         "id" = "1"
     }
