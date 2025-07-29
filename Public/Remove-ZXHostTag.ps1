@@ -79,7 +79,9 @@ function Remove-ZXHostTag{
 
         if($TagName){
             if (!$TagValue){                
-                $TagList = $TagList | Where-Object {$_.tag -cne $TagName}
+                $TagList.Remove(($TagList|Where-Object {$_.tag -ceq $TagName}))
+
+
             }
             if($TagValue){
                 $TagList.Remove(($TagList|Where-Object {$_.tag -ceq $TagName -and $_.value -ceq $TagValue}))

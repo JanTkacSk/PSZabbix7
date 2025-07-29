@@ -4840,7 +4840,9 @@ function Remove-ZXHostTag{
 
         if($TagName){
             if (!$TagValue){                
-                $TagList = $TagList | Where-Object {$_.tag -cne $TagName}
+                $TagList.Remove(($TagList|Where-Object {$_.tag -ceq $TagName}))
+
+
             }
             if($TagValue){
                 $TagList.Remove(($TagList|Where-Object {$_.tag -ceq $TagName -and $_.value -ceq $TagValue}))
@@ -6010,7 +6012,7 @@ function Update-ZXHostTagList{
 
         if($RemoveTag){
             if (!$RemoveTagValue){                
-                $TagList = $TagList | Where-Object {$_.tag -cne $RemoveTag}
+                $TagList.Remove(($TagList|Where-Object {$_.tag -ceq $TagName}))
             }
             if($RemoveTagValue){
                 $TagList.Remove(($TagList|Where-Object {$_.tag -ceq $RemoveTag -and $_.value -ceq $RemoveTagValue}))
