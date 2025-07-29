@@ -93,7 +93,7 @@ function Add-ZXHostTag{
     
     #Make the API call
     if(!$Whatif){
-        #$Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
+        $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
     }
 
     If ($ShowJsonResponse){
