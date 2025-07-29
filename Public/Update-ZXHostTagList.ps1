@@ -14,10 +14,29 @@ function Update-ZXHostTagList{
 
     )
     #Validate Parameters
+    if ($HostId -and $HostName){
+    Write-Host -ForegroundColor Red 'You cannot use -HostId and -HostName parameter at the same time'
+    continue
+    }
+
+    if ($HostId){
+        If ($HostId.GetType().Name -ne "String"){
+            Write-Host -ForegroundColor Red "HostId must be a String, your input is $($HostId.GetType().Name)"
+            continue
+        }
+    }
+    elseif($HostName){
+            If ($HostName.GetType().Name -ne "String"){
+            Write-Host -ForegroundColor Red "HostName must be a String, your input is $($HostId.GetType().Name)"
+            continue
+        }
+    }
+
     if ($AddTag -eq $RemoveTag -and $AddTagValue -eq $RemoveTagValue){
         Write-Host -ForegroundColor Red "You are trying to add and remove an identical tag/value pair. Choose only one operation."
         continue
     }
+
     if($RemoveTag -and -not $RemoveTagValue ) {
         Write-Host -ForegroundColor Yellow "-RemoveTagValue parameter was not specified. This will remove all $RemoveTag tags regardless of the value. Continue ?"
         Pause    
@@ -49,13 +68,20 @@ function Update-ZXHostTagList{
     }
 
     if($AddTag -or $RemoveTag -or $RemoveAllTags){
-
+       
         if($HostId){
             $ZXHost = Get-ZXHost -HostID $HostId -IncludeTags
         }
         elseif ($HostName){
             $ZXHost = Get-ZXHost -Name $HostName -IncludeTags
         }
+
+        if($ZXHost -eq $null){
+        Write-Host -ForegroundColor Yellow "Host not found"
+        continue
+        }
+    
+
         $PSObj.params.hostid = $ZXHost.hostid
         $PSObj.params |  Add-Member -MemberType NoteProperty -Name "host" -Value $ZXHost.host
         $PSObj.params |  Add-Member -MemberType NoteProperty -Name "name" -Value $ZXHost.name
@@ -81,7 +107,7 @@ function Update-ZXHostTagList{
         $PSObj.params |  Add-Member -MemberType NoteProperty -Name "tags" -Value @($TagList)
 
     }
-    
+
     $Json = $PSObj | ConvertTo-Json -Depth 5
 
     #Show JSON Request if -ShowJsonRequest switch is used
