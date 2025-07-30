@@ -1094,15 +1094,28 @@ function Get-ZXAuditLog {
 }
 
     function ConvertFrom-UnixTime{
-        param(
-            [array]$UnixTime
-        )
-        
+    param(
+        [array]$UnixTime
+    )
+        function Extract-UTCOffset {
+            param(
+                [string]$InputString
+            )
+            if ($InputString -match '\(UTC[+-]\d{2}:\d{2}\)') {
+                return $matches[0]
+            } else {
+                return $null
+            }
+        }
+
+        # Get the local time zone info
+        $LocalTimeZone = [System.TimeZoneInfo]::Local
         #This is when unix epoch started - 01 January 1970 00:00:00.
         $Origin = [datetime]::UnixEpoch
         foreach ($UT in $UnixTime){
-            $StandardTime = $Origin.AddSeconds($UT)
-            Write-Output $StandardTime
+            $TimeZoneToDisplay =  Extract-UTCOffset -InputString $LocalTimeZone.DisplayName
+            $StandardTime = $Origin.AddSeconds($UT).ToLocalTime()
+            Write-Output "$StandardTime $TimeZoneToDisplay"
         }
     }
 
@@ -1184,7 +1197,12 @@ function Get-ZXAuditLog {
         return
     } 
     else {
-        $Request.result | % {$_.clock = $($_.clock) + " | $(ConvertFrom-UnixTime -UnixTime $_.clock)";$_}
+        $Request.result | % {
+        $LocalTime =  ConvertFrom-UnixTime -UnixTime $_.clock
+        $_ | Add-Member -MemberType NoteProperty -Name "clock_standard" -Value $LocalTime
+        $_ | Add-Member -MemberType NoteProperty -Name "clock_time_Zone" -Value $([System.TimeZoneInfo]::Local).DisplayName
+        $_
+        }
         return
     }
     

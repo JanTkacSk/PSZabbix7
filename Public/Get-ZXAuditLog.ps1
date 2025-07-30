@@ -24,29 +24,30 @@ function Get-ZXAuditLog {
         [datetime]$StandardTime
     )
 
-    #This is when unix epoch started - 01 January 1970 00:00:00.
-    $Origin = [datetime]::UnixEpoch
-    foreach ($ST in $StandardTime){
-        $UnixTime = $ST - $Origin | Select-Object -ExpandProperty TotalSeconds
-        Write-Output $UnixTime
+        #This is when unix epoch started - 01 January 1970 00:00:00.
+        $Origin = [datetime]::UnixEpoch
+        foreach ($ST in $StandardTime){
+            $UnixTime = $ST - $Origin | Select-Object -ExpandProperty TotalSeconds
+            Write-Output $UnixTime
+        }
     }
-}
 
     function ConvertFrom-UnixTime{
         param(
             [array]$UnixTime
         )
         
+        # Get the local time zone info
+        #$LocalTimeZone = [System.TimeZoneInfo]::Local
         #This is when unix epoch started - 01 January 1970 00:00:00.
         $Origin = [datetime]::UnixEpoch
         foreach ($UT in $UnixTime){
-            $StandardTime = $Origin.AddSeconds($UT)
+            #$TimeZoneToDisplay = LocalTimeZone.DisplayName
+            $StandardTime = $Origin.AddSeconds($UT).ToLocalTime()
             Write-Output $StandardTime
         }
     }
 
-
-    
     #Function to add a FILTER parameter to the PS object
     function AddFilter($PropertyName,$PropertyValue){
         #Check if filter is already in the object or not and if not, add it.
@@ -123,7 +124,12 @@ function Get-ZXAuditLog {
         return
     } 
     else {
-        $Request.result | % {$_.clock = $($_.clock) + " | $(ConvertFrom-UnixTime -UnixTime $_.clock)";$_}
+        $Request.result | % {
+        $LocalTime =  ConvertFrom-UnixTime -UnixTime $_.clock
+        $_ | Add-Member -MemberType NoteProperty -Name "clock_standard" -Value $LocalTime
+        $_ | Add-Member -MemberType NoteProperty -Name "clock_time_Zone" -Value $([System.TimeZoneInfo]::Local).DisplayName
+        $_
+        }
         return
     }
     
