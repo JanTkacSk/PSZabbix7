@@ -32,6 +32,19 @@ function Get-ZXAuditLog {
     }
 }
 
+    function ConvertFrom-UnixTime{
+        param(
+            [array]$UnixTime
+        )
+        
+        #This is when unix epoch started - 01 January 1970 00:00:00.
+        $Origin = [datetime]::UnixEpoch
+        foreach ($UT in $UnixTime){
+            $StandardTime = $Origin.AddSeconds($UT)
+            Write-Output $StandardTime
+        }
+    }
+
 
     
     #Function to add a FILTER parameter to the PS object
@@ -110,7 +123,7 @@ function Get-ZXAuditLog {
         return
     } 
     else {
-        $Request.result
+        $Request.result | % {$_.clock = $($_.clock) + " | $(ConvertFrom-UnixTime -UnixTime $_.clock)";$_}
         return
     }
     
