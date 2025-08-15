@@ -1,6 +1,7 @@
 function Get-ZXProblem {
     param(
         [array]$HostID,
+        [array]$GroupID,
         [array]$EventID,
         [int]$Source,
         [switch]$IncludeTags,
@@ -11,8 +12,8 @@ function Get-ZXProblem {
         [int]$Limit,
         [array]$Output,
         [switch]$WhatIf,
-        [int]$StartDate,
-        [int]$StartDaysAgo
+        [datetime]$StartDate,
+        [int]$StartDaysAgo,
     )
 
     #Validate Parameters
@@ -80,9 +81,14 @@ function Get-ZXProblem {
         "id" = 1;
         "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
     }
+    
+    $PSObj.params | Add-Member -MemberType NoteProperty -Name "recent" -Value "false"
 
     if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostID
+    }
+    if ($GroupID){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value $GroupID
     }
     if ($EventID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "eventids" -Value $EventID
