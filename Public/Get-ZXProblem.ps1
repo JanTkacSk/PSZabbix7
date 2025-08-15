@@ -10,9 +10,46 @@ function Get-ZXProblem {
         [switch]$ShowJsonResponse,
         [int]$Limit,
         [array]$Output,
-        [switch]$WhatIf
+        [switch]$WhatIf,
+        [int]$StartDate,
+        [int]$StartDaysAgo
     )
 
+    #Validate Parameters
+    if($StartDate -and $StartDaysAgo){
+        Write-Host -ForegroundColor Yellow "Only one start date can be used !"
+        continue
+    }
+
+    function ConvertTo-UnixTime{
+    param(
+        [datetime]$StandardTime
+    )
+
+        #This is when unix epoch started - 01 January 1970 00:00:00.
+        #$Origin = [datetime]::UnixEpoch
+        $Origin = [datetime]::SpecifyKind([datetime]::Parse("1970-01-01T00:00:00"), [System.DateTimeKind]::Utc)
+        foreach ($ST in $StandardTime){
+            $UnixTime = $ST - $Origin | Select-Object -ExpandProperty TotalSeconds
+            Write-Output $UnixTime
+        }
+    }
+
+    function ConvertFrom-UnixTime{
+        param(
+            [array]$UnixTime
+        )
+        
+        # Get the local time zone info
+        #$LocalTimeZone = [System.TimeZoneInfo]::Local
+        #This is when unix epoch started - 01 January 1970 00:00:00.
+        $Origin = [datetime]::UnixEpoch
+        foreach ($UT in $UnixTime){
+            #$TimeZoneToDisplay = LocalTimeZone.DisplayName
+            $StandardTime = $Origin.AddSeconds($UT).ToLocalTime()
+            Write-Output $StandardTime
+        }
+    }
     if (!$Output){
         $Output = @("name","objectid")
     }
@@ -41,7 +78,7 @@ function Get-ZXProblem {
         "method" = "problem.get";
         "params" = [PSCustomObject]@{};
         "id" = 1;
-        "auth" = $ZXAPIToken | ConvertFrom-SecureString -AsPlainText; 
+        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
     }
 
     if ($HostID){
@@ -62,6 +99,22 @@ function Get-ZXProblem {
     if($Limit){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
     }
+    if ($StartDaysAgo){
+        $StartDateWindows = (Get-Date).AddDays(-$($StartDaysAgo))
+        $StartDateUnix =  ConvertTo-UnixTime -StandardTime $StartDateWindows
+        $StartDateUnix = "$([int]([System.Math]::Floor($StartDateUnix)))"
+
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "time_from" -Value $StartDateUnix
+    }
+
+    if ($StartDate){
+        $StartDateUnix =  ConvertTo-UnixTime -StandardTime $StartDate
+        $StartDateUnix = "$([int]([System.Math]::Floor($StartDateUnix)))"
+
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "time_from" -Value $StartDateUnix
+    }
+
+
 
     $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
     #Return only output count
@@ -72,7 +125,7 @@ function Get-ZXProblem {
     $Json =  $PSObj | ConvertTo-Json -Depth 3
 
     #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest){
+    If ($ShowJsonRequest -or $WhatIf){
         Write-Host -ForegroundColor Yellow "JSON REQUEST"
         $PSObjShow = $PSObj
         $PSObjShow.auth = "*****"
@@ -89,9 +142,6 @@ function Get-ZXProblem {
         Write-Host -ForegroundColor Yellow "JSON RESPONSE"
         Write-Host -ForegroundColor Cyan $($request.result | ConvertTo-Json -Depth 5)
     }
-    
-    #Add human readable creation time to the object
-    $Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
     
     #This will be returned by the function
     if($null -ne $Request.error){
