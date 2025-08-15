@@ -1,12 +1,18 @@
 function Get-ZXEvent {
     param(
         [array]$HostID,
+        [array]$GroupID,
         [array]$EventID,
         [switch]$IncludeTags,
         [array]$Output,
         [switch]$ShowJsonRequest,
+        [switch]$CountOutput,
+        [switch]$IncludeAlerts,
         [switch]$ShowJsonResponse,
-        [switch]$WhatIf
+        [switch]$WhatIf,
+        [datetime]$StartDate,
+        [int]$StartDaysAgo,
+        [int]$Limit
     )
     #Validate Parameters
     if (!$Output){
@@ -17,9 +23,34 @@ function Get-ZXEvent {
         [string]$Output = "extend"
     }
     
-    function ConvertFrom-UnixEpochTime ($UnixEpochTime){
-        $customDate = (Get-Date -Date "01-01-1970") + ([System.TimeSpan]::FromSeconds($UnixEpochTime))
-        $customDate
+        function ConvertTo-UnixTime{
+        param(
+            [datetime]$StandardTime
+        )
+
+        #This is when unix epoch started - 01 January 1970 00:00:00.
+        #$Origin = [datetime]::UnixEpoch
+        $Origin = [datetime]::SpecifyKind([datetime]::Parse("1970-01-01T00:00:00"), [System.DateTimeKind]::Utc)
+        foreach ($ST in $StandardTime){
+            $UnixTime = $ST - $Origin | Select-Object -ExpandProperty TotalSeconds
+            Write-Output $UnixTime
+        }
+    }
+
+    function ConvertFrom-UnixTime{
+        param(
+            [array]$UnixTime
+        )
+        
+        # Get the local time zone info
+        #$LocalTimeZone = [System.TimeZoneInfo]::Local
+        #This is when unix epoch started - 01 January 1970 00:00:00.
+        $Origin = [datetime]::UnixEpoch
+        foreach ($UT in $UnixTime){
+            #$TimeZoneToDisplay = LocalTimeZone.DisplayName
+            $StandardTime = $Origin.AddSeconds($UT).ToLocalTime()
+            Write-Output $StandardTime
+        }
     }
     
     #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
@@ -41,11 +72,19 @@ function Get-ZXEvent {
 
     }
 
+    #Return only output count
+    if($CountOutput){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "countOutput" -Value "true"
+    }
+
     if ($Output){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
     }
     if ($HostID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostids" -Value $HostIDs
+    }
+    if ($GroupID){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "groupids" -Value $GroupID
     }
     if ($EventID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "eventids" -Value $EventID
@@ -53,6 +92,29 @@ function Get-ZXEvent {
     if ($IncludeTags){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectTags" -Value @("tag","value")
     }
+    if ($IncludeAlerts){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectAlerts" -Value @("subject","alertid","actionid")
+    }
+    if($Limit){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
+    }
+
+
+    if ($StartDaysAgo){
+        $StartDateWindows = (Get-Date).AddDays(-$($StartDaysAgo))
+        $StartDateUnix =  ConvertTo-UnixTime -StandardTime $StartDateWindows
+        $StartDateUnix = "$([int]([System.Math]::Floor($StartDateUnix)))"
+
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "time_from" -Value $StartDateUnix
+    }
+
+    if ($StartDate){
+        $StartDateUnix =  ConvertTo-UnixTime -StandardTime $StartDate
+        $StartDateUnix = "$([int]([System.Math]::Floor($StartDateUnix)))"
+
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "time_from" -Value $StartDateUnix
+    }
+
 
 
     $Json =  $PSObj | ConvertTo-Json -Depth 5
@@ -71,9 +133,7 @@ function Get-ZXEvent {
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
     }
     
-    #Add human readable creation time to the object
-    #$Request.result | Add-Member -MemberType ScriptProperty -Name CreationTime -Value {ConvertFrom-UnixEpochTime($this.clock)}
-    
+   
     #This will be returned by the function
     if($null -ne $Request.error){
         $Request.error

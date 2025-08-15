@@ -23,9 +23,9 @@ function Get-ZXProblem {
     }
 
     function ConvertTo-UnixTime{
-    param(
-        [datetime]$StandardTime
-    )
+        param(
+            [datetime]$StandardTime
+        )
 
         #This is when unix epoch started - 01 January 1970 00:00:00.
         #$Origin = [datetime]::UnixEpoch
