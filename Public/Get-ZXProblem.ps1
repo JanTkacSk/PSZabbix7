@@ -13,7 +13,7 @@ function Get-ZXProblem {
         [array]$Output,
         [switch]$WhatIf,
         [datetime]$StartDate,
-        [int]$StartDaysAgo,
+        [int]$StartDaysAgo
     )
 
     #Validate Parameters
