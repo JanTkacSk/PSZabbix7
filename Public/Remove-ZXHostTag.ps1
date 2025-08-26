@@ -8,8 +8,8 @@ function Remove-ZXHostTag{
         [switch]$WhatIf,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
-        [bool]$Continue
-
+        [Alias("f")]
+        [switch]$Force
     )
     #Validate Parameters
     if ($HostId -and $HostName){
@@ -30,7 +30,7 @@ function Remove-ZXHostTag{
         }
     }
 
-    if($TagName -and -not $TagValue ) {
+    if($TagName -and -not $TagValue -and -not $Force ) {
         Write-Host -ForegroundColor Yellow "'TagValue' parameter was not specified. This will remove all $TagName tags regardless of the value. Continue ?"
         Pause    
     }
