@@ -12,16 +12,27 @@ function Copy-ZXHostParameters {
         [string]$NewDns
     )
 
-    # Get host data
-    $HostData = Get-ZXHost -name $HostTemplate -IncludeTags -Includemacros -IncludeParentTemplates -IncludeInterfaces -IncludeHostGroups -InterfaceProperties extend -Output host,name,status,description | ConvertTo-Json -Depth 5 | ConvertFrom-Json -Depth 5
+    # Define read-only properties
+    $readOnlyProps = @(
+        "hostid", "flags", "maintenanceid", "maintenance_status", "maintenance_type",
+        "maintenance_from", "active_available", "assigned_proxyid", "templateid", "uuid",
+        "vendor_name", "vendor_version", "proxy_groupid"
+    )
 
-    if(!$HostData){
+    # Get host data
+    $HostData = Get-ZXHost -name $HostTemplate -IncludeTags -Includemacros -IncludeParentTemplates -IncludeInterfaces -IncludeHostGroups -InterfaceProperties extend -Output extend | ConvertTo-Json -Depth 5 | ConvertFrom-Json -Depth 5
+
+    if (!$HostData) {
         Write-Host -ForegroundColor Yellow "Sample host not found, use a name that exactly matches the host name"
         return
     }
 
-    # Remove unwanted properties
-    $HostData.PSObject.Properties.Remove("hostid")
+    # Remove read-only properties
+    foreach ($prop in $readOnlyProps) {
+        $HostData.PSObject.Properties.Remove($prop)
+    }
+
+    # Clean up nested properties
     $HostData.groups | ForEach-Object { $_.PSObject.Properties.Remove("name") }
     $HostData.parentTemplates | ForEach-Object { $_.PSObject.Properties.Remove("name") }
     $HostData.interfaces | ForEach-Object {
@@ -48,26 +59,14 @@ function Copy-ZXHostParameters {
     $HostData.host = $NewName
     $HostData.name = if ($NewAlias) { $NewAlias } else { $NewName }
 
-
     # Update IP and DNS if provided
     if ($NewDns) { $HostData.interfaces[0].dns = $NewDns }
     if ($NewIp) { $HostData.interfaces[0].ip = $NewIp }
     if ($NewDescription) { $HostData.description = $NewDescription }
 
-
-
     # Final params object for API call
-    $params = @{
-        host        = $HostData.host
-        name        = $HostData.name
-        status      = $HostData.status
-        description = $HostData.description
-        macros      = $CleanMacros
-        templates   = $HostData.templates
-        groups      = $HostData.groups
-        interfaces  = $HostData.interfaces
-        tags        = $HostData.tags
-    }
+    $HostData.macros = $CleanMacros
+    $params = $HostData
 
     return $params
 }
