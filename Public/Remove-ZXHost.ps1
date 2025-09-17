@@ -1,10 +1,9 @@
 function Remove-ZXHost{
     param(
         [array]$HostId,
-        [switch]$WhatIf,
-        [switch]$ShowJsonRequest
+        [switch]$WhatIf
     )
-   
+
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
     $PSObj = New-ZXApiRequestObject -Method host.delete
     $PSObj.params = $HostId
@@ -19,9 +18,8 @@ function Remove-ZXHost{
 
     $Json = $PSObj | ConvertTo-Json -Depth 5
 
-
-    #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest -or $WhatIf){
+    #Show JSON Request if -Whatif switch is used
+    If ($WhatIf){
         Write-JsonRequest
     }
     
