@@ -18,30 +18,20 @@ function Get-ZXHost {
         [string]$Status,
         [ValidateSet("0","1","True","False")]
         [string]$InMaintenance,
-        [switch]$ShowJsonRequest,
         [switch]$ShowResponseTime,
-        [switch]$ShowJsonResponse,
         [switch]$IncludeDiscoveries,
-        [switch]$IncludeDiscoveryRule,
-        [switch]$IncludeGraphs,
         [switch]$IncludeHostGroups,
-        [switch]$IncludeHostDiscovery,
-        [switch]$IncludeHttpTests,
         [switch]$IncludeInterfaces,
         [switch]$IncludeInventory,
         [switch]$IncludeItems,
         [switch]$IncludeMacros,
         [switch]$IncludeParentTemplates,
-        [switch]$IncludeDashboards,
         [switch]$IncludeTags,
         [switch]$WithItems,
         [switch]$IncludeInheritedTags,
         [switch]$IncludeTriggers,
-        [switch]$IncludeValueMaps,
         [array]$TemplateIDs,
-        [array]$ItemIDs,
         [array]$Tag,
-        [array]$TriggeIDs,
         [array]$GroupIDs,
         [switch]$inheritedTags,
         [switch]$CountOutput,
@@ -106,15 +96,8 @@ function Get-ZXHost {
     }
 
     #Use Get-ZXHostInterface to search for the IP interfaces and get their host Id(s)
-    if($IPsearch -and !$ShowJsonRequest -and !$WhatIf){
+    if($IPsearch -and !$WhatIf){
         $HostID =  Get-ZXHostInterface -IPSearch $IPSearch | Select-Object -ExpandProperty hostid
-        #If the HostidID is null the host.get will return all the hosts in zabbix.
-        if ($null -eq $HostID){
-            $HostID = "..n/a.."
-        }   
-    }
-    elseif($IPsearch -and $ShowJsonRequest -and !($WhatIf)){
-        $HostID =  Get-ZXHostInterface -IPSearch $IPSearch -ShowJsonRequest | Select-Object -ExpandProperty hostid
         #If the HostidID is null the host.get will return all the hosts in zabbix.
         if ($null -eq $HostID){
             $HostID = "..n/a.."
@@ -126,20 +109,12 @@ function Get-ZXHost {
     }
 
     #Use Get-ZXHostInterface to get IP interfaces that EXACTLY match the ip value of the argument, and get their host Id(s)
-    if($IP -and !$ShowJsonRequest -and !$WhatIf){
+    if($IP -and !$WhatIf){
         $HostID =  Get-ZXHostInterface -IP $IP | Select-Object -ExpandProperty hostid
         #If the HostidID is null the host.get will return all the hosts in zabbix.
         if ($null -eq $HostID){
             $HostID = "..n/a.."
         }       
-    }
-    elseif($IP -and $ShowJsonRequest -and !($WhatIf)){
-        $HostID =  Get-ZXHostInterface -IP $IP -ShowJsonRequest | Select-Object -ExpandProperty hostid
-        #If the HostidID is null the host.get will return all the hosts in zabbix.
-        if ($null -eq $HostID){
-            $HostID = "..n/a.."
-        }          
-        
     }
     elseif($IP -and $WhatIf){
         Get-ZXHostInterface -IP $IP -WhatIf
@@ -252,8 +227,8 @@ function Get-ZXHost {
     #Convert the ps object to json. It is crucial to use a correct value for the -Depth
     $Json = $PSObj | ConvertTo-Json -Depth 5
 
-    #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest -or $WhatIf){Write-JsonRequest}
+    #Show JSON Request if -WhatIf switch is used
+    If ($WhatIf){Write-JsonRequest}
 
     #Record API call start time
     $APICallStartTime = Get-Date
@@ -270,8 +245,8 @@ function Get-ZXHost {
     $APICallResponseTime = $APICallEndTime - $APICallStartTime
     
 
-    #Show JSON Request if -ShowJsonResponse switch is used
-    If ($ShowJsonResponse){
+    #Show JSON Request if -WhatIf switch is used
+    If ($WhatIf){
         Write-Host -ForegroundColor Yellow "JSON RESPONSE"
         Write-Host -ForegroundColor Cyan $($request.result | ConvertTo-Json -Depth 5)
     }
