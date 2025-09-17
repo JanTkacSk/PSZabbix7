@@ -1,11 +1,22 @@
 
 #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-function ShowJsonRequest {
+Function Write-JsonRequest {
     Write-Host -ForegroundColor Yellow "JSON REQUEST"
     $PSObjShow = $PSObj | ConvertTo-Json -Depth 5 | ConvertFrom-Json
     $PSObjShow.auth = "*****"
     $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
     Write-Host -ForegroundColor Cyan $JsonShow
+}
+
+#Basic PS Object wich will be edited based on the used parameters and finally converted to json
+Function New-ZXApiRequestObject ($Method){
+        return [PSCustomObject]@{
+        "jsonrpc" = "2.0"; 
+        "method" = "$Method"; 
+        "params" = [PSCustomObject]@{}; 
+        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
+        "id" = "1"
+    }
 }
 
 function Add-ZXHostGroup {
@@ -1934,14 +1945,8 @@ function Get-ZXHost {
 
  
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj  = [PSCustomObject]@{
-        "jsonrpc" = "2.0"; 
-        "method" = "host.get"; 
-        "params" = [PSCustomObject]@{
-        }; 
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "id" = "1"
-    }
+
+    $PSObj = New-ZXApiRequestObject -Method host.get
 
     #Function to add a filter parameter to the PS object
     function AddFilter($PropertyName,$PropertyValue){
@@ -2067,7 +2072,7 @@ function Get-ZXHost {
     $Json = $PSObj | ConvertTo-Json -Depth 5
 
     #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest -or $WhatIf){ShowJsonRequest}
+    If ($ShowJsonRequest -or $WhatIf){Write-JsonRequest}
 
     #Record API call start time
     $APICallStartTime = Get-Date

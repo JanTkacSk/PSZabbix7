@@ -148,14 +148,8 @@ function Get-ZXHost {
 
  
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj  = [PSCustomObject]@{
-        "jsonrpc" = "2.0"; 
-        "method" = "host.get"; 
-        "params" = [PSCustomObject]@{
-        }; 
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "id" = "1"
-    }
+
+    $PSObj = New-ZXApiRequestObject -Method host.get
 
     #Function to add a filter parameter to the PS object
     function AddFilter($PropertyName,$PropertyValue){
@@ -281,7 +275,7 @@ function Get-ZXHost {
     $Json = $PSObj | ConvertTo-Json -Depth 5
 
     #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest -or $WhatIf){ShowJsonRequest}
+    If ($ShowJsonRequest -or $WhatIf){Write-JsonRequest}
 
     #Record API call start time
     $APICallStartTime = Get-Date
