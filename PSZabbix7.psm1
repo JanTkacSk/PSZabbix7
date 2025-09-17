@@ -1954,14 +1954,6 @@ function Get-ZXHost {
         $PSObj.params.search | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
     }
 
-    #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-    function ShowJsonRequest {
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj | ConvertTo-Json | ConvertFrom-Json
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    }
     
     #Add additional host parameters to the ps object based on the function parameters
 
@@ -2066,13 +2058,7 @@ function Get-ZXHost {
     $Json = $PSObj | ConvertTo-Json -Depth 5
 
     #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest -or $WhatIf){
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    }
+    If ($ShowJsonRequest -or $WhatIf){ShowJsonRequest}
 
     #Record API call start time
     $APICallStartTime = Get-Date
@@ -4026,6 +4012,15 @@ function Get-ZXTriggerPrototype {
         return
     }
 
+}
+
+#A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
+function ShowJsonRequest {
+    Write-Host -ForegroundColor Yellow "JSON REQUEST"
+    $PSObjShow = $PSObj | ConvertTo-Json -Depth 5 | ConvertFrom-Json
+    $PSObjShow.auth = "*****"
+    $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
+    Write-Host -ForegroundColor Cyan $JsonShow
 }
 
 function Invoke-ZXTask {
