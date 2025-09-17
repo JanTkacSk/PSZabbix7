@@ -151,26 +151,6 @@ function Get-ZXHost {
 
     $PSObj = New-ZXApiRequestObject -Method host.get
 
-    #Function to add a filter parameter to the PS object
-    function AddFilter($PropertyName,$PropertyValue){
-        #Check if filter is already in the object or not and if not, add it.
-        if ($null -eq $PSObj.params.filter){
-            $PSObj.params | Add-Member -MemberType NoteProperty -Name "filter" -Value ([PSCustomObject]@{})
-        }
-        #Add a specific property to the filter
-        $PSObj.params.filter | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
-    }
-
-    #Function to add a Search parameter to the PS object
-    function AddSearch($PropertyName,$PropertyValue){
-        #Check if search is already in the object or not and if not, add it.
-        if ($null -eq $PSObj.params.search){
-            $PSObj.params | Add-Member -MemberType NoteProperty -Name "search" -Value ([PSCustomObject]@{})
-        }
-        #Add a specific property to the filter
-        $PSObj.params.search | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
-    }
-
     
     #Add additional host parameters to the ps object based on the function parameters
 
@@ -269,8 +249,6 @@ function Get-ZXHost {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
     }
     
-
-
     #Convert the ps object to json. It is crucial to use a correct value for the -Depth
     $Json = $PSObj | ConvertTo-Json -Depth 5
 

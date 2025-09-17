@@ -38,4 +38,25 @@ function Resolve-ZXApiResponse {
     }
 }
 
+#Function to add a filter parameter to the PS object
+function AddFilter($PropertyName,$PropertyValue){
+    #Check if filter is already in the object or not and if not, add it.
+    if ($null -eq $PSObj.params.filter){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "filter" -Value ([PSCustomObject]@{})
+    }
+    #Add a specific property to the filter
+    $PSObj.params.filter | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
+}
+
+#Function to add a Search parameter to the PS object
+function AddSearch($PropertyName,$PropertyValue){
+    #Check if search is already in the object or not and if not, add it.
+    if ($null -eq $PSObj.params.search){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "search" -Value ([PSCustomObject]@{})
+    }
+    #Add a specific property to the filter
+    $PSObj.params.search | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
+}
+
+
 
