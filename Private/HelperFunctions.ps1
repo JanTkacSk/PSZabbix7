@@ -17,3 +17,25 @@ Function New-ZXApiRequestObject ($Method){
         "id" = "1"
     }
 }
+
+function Resolve-ZXApiResponse {
+    param (
+        [Parameter(Mandatory=$true)]
+        $Request
+    )
+    
+    if ($null -ne $Request.error) {
+        $Request.error
+        return
+    }
+    elseif ($null -ne $Request.result) {
+        $Request.result
+        return
+    }
+    else {
+        Write-Host -ForegroundColor Yellow "No result"
+        return
+    }
+}
+
+

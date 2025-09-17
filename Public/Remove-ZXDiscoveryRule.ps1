@@ -52,7 +52,7 @@ function Remove-ZXDiscoveryRule{
 
     If ($ShowJsonResponse){
         Write-Host -ForegroundColor Yellow "JSON RESPONSE"
-        Write-Host -ForegroundColor Cyan $($request | ConvertTo-Json -Depth 5)
+        Write-Host -ForegroundColor Cyan $(Rrequest | ConvertTo-Json -Depth 5)
     }
 
     #This will be returned by the function
