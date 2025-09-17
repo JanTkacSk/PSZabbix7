@@ -4761,6 +4761,7 @@ function Remove-ZXHost{
    
     #Funcions
     #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
+    <#
     function ShowJsonRequest {
         Write-Host -ForegroundColor Yellow "JSON REQUEST"
         $PSObjShow = $PSObj
@@ -4768,15 +4769,21 @@ function Remove-ZXHost{
         $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
         Write-Host -ForegroundColor Cyan $JsonShow
     } 
+    #>
 
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj  = [PSCustomObject]@{
+    $PSObj  =  New-ZXApiRequestObject
+    $PSObj.params = $HostId
+    
+    <#
+    [PSCustomObject]@{
         "jsonrpc" = "2.0"; 
         "method" = "host.delete"; 
         "params" = $HostId; 
         "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
         "id" = "1"
     }
+    #>
 
     $ZXHost = Get-ZXHost -HostID $HostId
     if($null -eq $ZXHost.hostid){
@@ -4790,12 +4797,15 @@ function Remove-ZXHost{
 
     #Show JSON Request if -ShowJsonRequest switch is used
     If ($ShowJsonRequest -or $WhatIf){
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
+        Write-JsonRequest
+
+        <#Write-Host -ForegroundColor Yellow "JSON REQUEST"
         #Make a clean copy of an object - have to uset convertto and convertfrom in order to break the references to the original object
         $PSObjShow = $PSObj | ConvertTo-Json | ConvertFrom-Json
         $PSObjShow.auth = "*****"
         $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
         Write-Host -ForegroundColor Cyan $JsonShow
+        #>
     }
     
     #Make the API call
