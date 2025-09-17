@@ -105,7 +105,7 @@ function Get-ZXHost {
     }
     elseif($IPSearch -and $WhatIf){
         Get-ZXHostInterface -IPSearch $IPSearch -WhatIf
-        $HostID = "..n/a.."
+        $HostID = "HostID(s)FromTheFirstAPICall"
     }
 
     #Use Get-ZXHostInterface to get IP interfaces that EXACTLY match the ip value of the argument, and get their host Id(s)
