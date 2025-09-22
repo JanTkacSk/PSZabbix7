@@ -65,83 +65,17 @@ function AddSearch($PropertyName,$PropertyValue){
 function Add-ZXHostGroup {
     [CmdletBinding()]
     param (
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$true)]
         [array]$HostID,
-        [Parameter(Mandatory=$false)]
-        [array]$HostObj,
-        [Parameter(Mandatory=$false)]
+        [Parameter(Mandatory=$true)]
         [array]$GroupID,
         [Parameter(Mandatory=$false)]
-        [array]$GroupObj,
-        [Parameter(Mandatory=$false)]
-        [switch]$ShowJsonResponse,
-        [switch]$ShowJsonRequest,
-        [Alias("SaveRes")]
-        [bool]$SaveJsonRequest=$false,
-        [Alias("SaveReq")]
-        [bool]$SaveJsonResponse=$false,
         [switch]$WhatIf
     )
     
-    #Funcions
-    function DateToString{
-        (Get-Date).ToString("2024-MM-dd_HH.mm.ss.ffff")
-    }
-
-    #Variables
-    $DateTime = DateToString
-    $SaveLocation = "$($env:LOCALAPPDATA)\ZXModule\Request-Response_$DateTime"
-
-    #CreateaRequestResponseDirectory
-    New-Item $SaveLocation -ItemType Directory
-
-
-    #Check if the parameters are not missing or if the combination is right. Address this later via parameter sets.
-    if (!$GroupID -and !$GroupObj){
-        Write-Host -ForegroundColor Yellow "You have to specify -GroupID or -GroupObj."
-        return
-    } 
-    if ($GroupID -and $GroupObj){
-        Write-Host -ForegroundColor Yellow "You cannot combine -GroupID and -GroupOBJ."
-        return
-    }
-    if ($HostID -and $HostObj){
-        Write-Host -ForegroundColor Yellow "You cannot combine -HostID and -HostObj."
-        return
-    }
-    if (!$HostID -and !$HostObj){
-        Write-Host -ForegroundColor Yellow "You have to specify -HostID or -HostObj "
-        return
-    }
-    # Create an array of objects from a simple array. Each object has only one property $PropertyName (you choose the name).
-    # For example from the following array "1234","4321" it creates two objects "hostid" = "1234" and "hostid" = "4321"
-    # and puts it into an array, then you can add it to the PS object and convert it to json object for the API request.
-    function ConvertArrayToObjects($PropertyName,$Array){
-        $Result = @()
-        foreach ($item in $Array){
-            $Result += @{$PropertyName = "$item"}
-        }
-        $Result
-        return
-    }
-    #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-    function ShowJsonRequest {
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    }
-
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj  = [PSCustomObject]@{
-        "jsonrpc" = "2.0"; 
-        "method" = "hostgroup.massadd"; 
-        "params" = [PSCustomObject]@{
-        }; 
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "id" = "1"
-    }
+    $PSObj  = New-ZXApiRequestObject -Method "hostgroup.massadd"
+
     #Add properties to the basic PS object based on the used parameters
     if($GroupID){
         $GroupIDObjects = ConvertArrayToObjects -PropertyName "groupid" -Array $GroupID
@@ -161,55 +95,14 @@ function Add-ZXHostGroup {
     $Json = $PSObj | ConvertTo-Json -Depth 5 
 
     #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest){
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    }
-    #Save JSON Request if -SaveJsonRequest is not $false. Default is $true.
-    If ($SaveJsonRequest){
-        $Json | Out-File -FilePath "$SaveLocation\Add-ZXHostGroup_JSON_Request_$DateTime.json"
-        Write-Host -ForegroundColor Yellow "Request saved to:"
-        Write-Host "$SaveLocation\Add-ZXHostGroup_JSON_Request_$DateTime.json"
+    If ($Whatif){
+        Write-JsonRequest
     }
 
     #Make the API call
     if (!$WhatIf){
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
-    }
-
-    #Show JSON Response if -ShowJsonResponse switch is used
-    If ($ShowJsonResponse){
-        Write-Host -ForegroundColor Yellow "`nJSON RESPONSE"
-        if($null -ne $Request.error){
-            Write-Host -ForegroundColor Cyan "$($request.error | ConvertTo-Json -Depth 5)`n"
-        }
-        else{
-            Write-Host -ForegroundColor Cyan "$($request.result | ConvertTo-Json -Depth 5)`n"
-        }
-    }
-    #Save JSON Request if -SaveJsonResponse is not $false. Default is $true.
-    If ($SaveJsonResponse){
-        if($null -ne $Request.error){
-            $request.error | ConvertTo-Json -Depth 5 | Out-File -FilePath "$SaveLocation\Add-ZXHostGroup_JSON_Response_$DateTime.json"
-        }
-        else{
-            $request.result | ConvertTo-Json -Depth 5 | Out-File -FilePath "$SaveLocation\Add-ZXHostGroup_JSON_Response_$DateTime.json"
-        }
-        Write-Host -ForegroundColor Yellow "Response saved to:"
-        Write-Host "$SaveLocation\Add-ZXHostGroup_JSON_Response-$DateTime.json"
-    }
-    
-    #This will be returned by the function
-    if($null -ne $Request.error){
-        $Request.error
-        return
-    } 
-    else {
-        $Request.result
-        return
+        Resolve-ZXApiResponse -Request $Request
     }
     
 }
@@ -223,50 +116,27 @@ function Add-ZXHostNameSuffix{
         [switch]$WhatIf,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
-        [switch]$Transcript,
         [switch]$Force,
         [bool]$Confirm=$true
     )
-    #Start Transcript
-    if($Transcript){
-        Start-Transcript
-    }
 
     #Verify parameters
-
     #WARNING if you want the alias to be equal to the name, use -SameAlias switch and run the command again.
     if(!$SameAlias){
         Write-Host "If you want the alias to be equal to the name, use -SameAlias switch and set it to the same value as name"
         pause
     }
         
-
     if ($HostName -and $HostId){
         Write-Host -ForegroundColor Yellow 'Not allowed to use -HostName and -HostID parameters together'
         continue
     }
     
-    #Funcions
-    #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-    function ShowJsonRequest {
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    } 
 
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj  = [PSCustomObject]@{
-        "jsonrpc" = "2.0"; 
-        "method" = "host.update"; 
-        "params" = [PSCustomObject]@{
-            "hostid" = $HostId
-        }; 
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "id" = "1"
-    }
-
+    $PSObj  = New-ZXApiRequestObject -Method "host.update"
+    $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostid" $HostId
+    
     if($HostId){
         $ZXHost = Get-ZXHost -HostID $HostId
         if($null -eq $ZXHost.hostid){
@@ -342,234 +212,6 @@ function Add-ZXHostNameSuffix{
         Stop-Transcript
     }
     
-}
-
-
-
-function Add-ZXHostNameSuffixX{
-    param(
-        [array]$HostName,
-        [array]$HostId,
-        [string]$Suffix,
-        [switch]$SameAlias,
-        [switch]$WhatIf,
-        [bool]$WriteLog=$true,
-        [switch]$ShowJsonRequest,
-        [switch]$ShowJsonResponse,
-        [switch]$Transcript,
-        [switch]$Force,
-        [bool]$Confirm=$true
-    )
-
-    #Variables
-    #Loop Id must be defined before the loop and passed to the function so that it does not change with each iteration
-    $LoopId = [Guid]::NewGuid() | Select-Object -ExpandProperty Guid
-    #Name of the command we use
-    $CommandName = $MyInvocation.MyCommand.Name
-    #Command parameters including their values(arguments) in a hashtable
-    $CommandParameters = $MyInvocation.BoundParameters
-    $DateTime = (Get-Date).ToString("yyyy-MM-dd_HH.mm.ss.ffff")
-    $SaveLocation = "$($env:LOCALAPPDATA)\ZXModule\Log"
-    $LogPath = "$SaveLocation\$($DateTime)_$($CommandName).json"
-    $LogObject = [PSCustomObject]@{
-        "TimeStamp" = Get-Date -Format "MM/dd/yyyy HH:mm"
-        "TimeZone" = Get-TimeZone | Select-Object -ExpandProperty DisplayName
-        "CommandName" = $CommandName
-        "CommandParameters" = $CommandParameters
-        "LoopID" = $LoopID
-        "RequestResponse" = @()
-        "HostsNotFound" = @()
-        "Skipped" = @()
-    }
-
-    #Validate parameters
-    #WARNING if you want the alias to be equal to the name, use -SameAlias switch and run the command again.
-    if(!$SameAlias){
-        Write-Host "If you want the alias to be equal to the name, use -SameAlias switch and set it to the same value as name"
-        pause
-    }
-        
-    if ($HostName -and $HostId){
-        Write-Host -ForegroundColor Yellow 'Not allowed to use -HostName and -HostID parameters together'
-        continue
-    }
-
-    function SetZXHostNameSuffixX {
-        param(
-            [string]$LoopID,
-            [string]$HostId,
-            [string]$HostName
-        )
-        
-        #Variables
-        #CorrelationID which is the same for request and the response. Since we are looping through multiple servers, we get multiple
-        #requests and responses, correlation Id can links the request with the corresponding response
-        $CorrelationID = [Guid]::NewGuid() | Select-Object -ExpandProperty Guid
-
-        #Funcions
-        #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-        function ShowJsonRequest {
-            Write-Host -ForegroundColor Yellow "JSON REQUEST"
-            $PSObjShow = $PSObj
-            $PSObjShow.auth = "*****"
-            $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-            Write-Host -ForegroundColor Cyan $JsonShow
-        } 
-
-        #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-        $PSObj  = [PSCustomObject]@{
-            "jsonrpc" = "2.0"; 
-            "method" = "host.update"; 
-            "params" = [PSCustomObject]@{
-                "hostid" = $HostId
-            }; 
-            "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-            "id" = "1"
-        }
-
-        if($HostId){
-            $ZXHost = Get-ZXHost -HostID $HostId -Output hostid,host,name -IncludeItems -ItemProperties type
-            if($null -eq $ZXHost.hostid){
-                Write-Host "$HostId > " -NoNewline
-                Write-Host -ForegroundColor Yellow Not Found
-                $LogObject.HostsNotFound += $HostId
-                Continue
-            }
-
-        }
-        elseif ($HostName){
-            $ZXHost = Get-ZXHost -Name $HostName -Output hostid,host,name -IncludeItems -ItemProperties type
-            if($null -eq $ZXHost.host){
-                Write-Host "$HostName > " -NoNewline
-                Write-Host -ForegroundColor Yellow Not Found
-                $LogObject.HostsNotFound += $HostName
-                Continue
-            }
-
-        }
-        #Check if the host contains a dot. If so skip the host and add it to the log object.
-        if($ZXHost.host -like "*.*" -and -not $Force){
-            Write-Host -ForegroundColor Yellow "[$($ZXHost.host)] => Skipped (Has a dot in the name.)."
-            $LogObject.Skipped += $ZXHost.host
-            continue
-        }
-
-        #Check if the host contains any active check. If so skip the host and add it to the log object.
-        if($ZXHost.items.type -contains "7" -and -not $Force){
-            Write-Host -ForegroundColor Yellow "[$($ZXHost.host)] => Skipped (Has Agent Active Checks) ."
-            $LogObject.Skipped += $ZXHost.host
-            continue
-        }
-        #NewHostName
-        $NewHostName = $ZXHost.host + "." + $Suffix.trim(".")
-        #Read the $ZXHost properties and use the values to fill in $PSobject properties. $PSobject is later converted to $json request
-        $PSObj.params.hostid = $ZXHost.hostid
-        $PSObj.params |  Add-Member -MemberType NoteProperty -Name "host" -Value $NewHostName
-        #If -SameAlias switch is not used, the host alias is not changed.
-        if($SameAlias){
-            $PSObj.params |  Add-Member -MemberType NoteProperty -Name "name" -Value $NewHostName
-        }
-        else{
-            $PSObj.params |  Add-Member -MemberType NoteProperty -Name "name" -Value $ZXHost.name
-        } 
-        
-        $Json = $PSObj | ConvertTo-Json -Depth 5
-
-        #Save JSON Request if -WriteLog is not $false. Default is $true.
-        If ($WriteLog){
-            $PSObjShow = $PSObj | ConvertTo-Json -Depth 5 | ConvertFrom-Json -Depth 5
-            $PSObjShow.auth = "*****"
-            $RequestLogObject = [PSCustomObject]@{
-                "Time" = Get-Date -Format "MM/dd/yyyy HH:mm"
-                "Type" = "Request"
-                "CorrelationID" = $CorrelationID
-                "LoopID" = $LoopID
-                "Original Status" = $ZXHost
-                "RequestObject" = $PSObjShow
-            }
-            $LogObject.RequestResponse += $RequestLogObject              
-        }
-        
-
-        #Show JSON Request if -ShowJsonRequest switch is used
-        If ($ShowJsonRequest -or $WhatIf){
-            Write-Host -ForegroundColor Yellow "JSON REQUEST"
-            $PSObjShow = $PSObj
-            $PSObjShow.auth = "*****"
-            $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-            Write-Host -ForegroundColor Cyan $JsonShow
-        }
-
-        #Make the API call
-        if(!$Whatif){
-            $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
-        }
-
-        #Save JSON Request if -WriteLog is not $false. Default is $true.
-        If ($WriteLog){
-            if($null -ne $Request.error){
-                $ResponseObject = $Request.error
-            }
-            else{
-                $ResponseObject = $Request.result
-            }
-            $ResponseLogObject = [PSCustomObject]@{
-                "Time" = Get-Date -Format "MM/dd/yyyy HH:mm"
-                "Type" = "Response"
-                "CorrelationID" = $CorrelationID
-                "LoopID" = $LoopID
-                "ResponseObject" = $ResponseObject
-            }
-            $LogObject.RequestResponse += $ResponseLogObject
-        }
-        
-
-        If ($ShowJsonResponse){
-            Write-Host -ForegroundColor Yellow "JSON RESPONSE"
-            Write-Host -ForegroundColor Cyan $($request | ConvertTo-Json -Depth 5)
-        }
-
-        #This will be returned by the function
-        if($null -ne $Request.error){
-            $Request.error
-            return
-        } 
-        elseif ($null -ne $Request.result) {
-            Write-Host -ForegroundColor Green "$($Request.result.hostids) $HostName > $NewHostName"
-            return
-        }
-        elseif(!$WhatIf) {
-            Write-Host -ForegroundColor Yellow "No result"
-            return
-        }
-
-    }#SetZXHostNameSuffixX
-
-    if($HostName){
-        foreach($Name in $HostName){
-            SetZXHostNameSuffixX -HostName $Name -LoopID $LoopID 
-        }    
-    }
-    if($HostID){
-        foreach($Id in $HostId){
-            SetZXHostNameSuffixX -HostId $Name -LoopID $LoopID 
-        }    
-    }
-
-    $LogObject | ConvertTo-Json -Depth 6 | Out-File -FilePath $LogPath
-    #Display the hosts that were skipped
-    if ($LogObject.Skipped.length -gt 0){
-        Write-Host "The following hosts were skipped. Use -Force to override."
-        $LogObject.Skipped
-    }
-    #Display the hosts that were not found
-    if ($LogObject.HostsNotFound.length -gt 0){
-        Write-Host "The following hosts were not found."
-        $LogObject.HostsNotFound
-    }
-    #Display the log location in the console
-    Write-Host -ForegroundColor DarkCyan "Log: $LogPath"    
-
 }
 
 
