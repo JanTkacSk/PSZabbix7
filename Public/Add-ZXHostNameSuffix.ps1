@@ -7,14 +7,9 @@ function Add-ZXHostNameSuffix{
         [switch]$WhatIf,
         [switch]$ShowJsonRequest,
         [switch]$ShowJsonResponse,
-        [switch]$Transcript,
         [switch]$Force,
         [bool]$Confirm=$true
     )
-    #Start Transcript
-    if($Transcript){
-        Start-Transcript
-    }
 
     #Verify parameters
 
@@ -24,33 +19,16 @@ function Add-ZXHostNameSuffix{
         pause
     }
         
-
     if ($HostName -and $HostId){
         Write-Host -ForegroundColor Yellow 'Not allowed to use -HostName and -HostID parameters together'
         continue
     }
     
-    #Funcions
-    #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-    function ShowJsonRequest {
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    } 
 
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj  = [PSCustomObject]@{
-        "jsonrpc" = "2.0"; 
-        "method" = "host.update"; 
-        "params" = [PSCustomObject]@{
-            "hostid" = $HostId
-        }; 
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "id" = "1"
-    }
-
+    $PSObj  = New-ZXApiRequestObject -Method "host.update"
+    $PSObj.params | Add-Member -MemberType NoteProperty -Name "hostid" $HostId
+    
     if($HostId){
         $ZXHost = Get-ZXHost -HostID $HostId
         if($null -eq $ZXHost.hostid){
