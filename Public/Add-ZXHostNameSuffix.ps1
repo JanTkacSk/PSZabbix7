@@ -12,7 +12,6 @@ function Add-ZXHostNameSuffix{
     )
 
     #Verify parameters
-
     #WARNING if you want the alias to be equal to the name, use -SameAlias switch and run the command again.
     if(!$SameAlias){
         Write-Host "If you want the alias to be equal to the name, use -SameAlias switch and set it to the same value as name"
