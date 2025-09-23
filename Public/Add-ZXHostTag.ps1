@@ -6,25 +6,6 @@ function Add-ZXHostTag{
         [switch]$WhatIf
     )
 
-    #Validate Parameters
-    if ($HostId -and $HostName){
-        Write-Host -ForegroundColor Red 'You cannot use -HostId and -HostName parameter at the same time'
-        continue
-
-    }
-    if ($HostId){
-        If ($HostId.GetType().Name -ne "String"){
-            Write-Host -ForegroundColor Red "HostId must be a String, your input is $($HostId.GetType().Name)"
-            continue
-        }
-    }
-    elseif($HostName){
-            If ($HostName.GetType().Name -ne "String"){
-            Write-Host -ForegroundColor Red "HostName must be a String, your input is $($HostId.GetType().Name)"
-            continue
-        }
-    }
-
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
     $PSObj  = New-ZXApiRequestObject -Method "host.update"
     
@@ -58,5 +39,3 @@ function Add-ZXHostTag{
     }
     
 }
-
-
