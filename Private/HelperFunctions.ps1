@@ -2,7 +2,7 @@
 Function Write-JsonRequest {
     Write-Host -ForegroundColor Yellow "JSON REQUEST"
     $PSObjShow = $PSObj | ConvertTo-Json -Depth 5 | ConvertFrom-Json
-    $PSObjShow.auth = "*****"
+    if($PSObjShow.auth) {$PSObjShow.auth = "*****"}
     $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
     Write-Host -ForegroundColor Cyan $JsonShow
 }
@@ -56,6 +56,37 @@ function AddSearch($PropertyName,$PropertyValue){
     }
     #Add a specific property to the filter
     $PSObj.params.search | Add-Member -MemberType NoteProperty -Name $PropertyName -Value $PropertyValue
+}
+
+function ConvertFrom-UnixTime{
+    param(
+        [array]$UnixTime
+    )
+    
+    # Get the local time zone info
+    #$LocalTimeZone = [System.TimeZoneInfo]::Local
+    #This is when unix epoch started - 01 January 1970 00:00:00.
+    #$Origin = [datetime]::UnixEpoch
+    $Origin = [datetime]::SpecifyKind([datetime]::Parse("1970-01-01T00:00:00"), [System.DateTimeKind]::Utc)
+    foreach ($UT in $UnixTime){
+        #$TimeZoneToDisplay = LocalTimeZone.DisplayName
+        $StandardTime = $Origin.AddSeconds($UT).ToLocalTime()
+        Write-Output $StandardTime
+    }
+}
+
+function ConvertTo-UnixTime{
+    param(
+        [datetime]$StandardTime
+    )
+
+    #This is when unix epoch started - 01 January 1970 00:00:00.
+    #$Origin = [datetime]::UnixEpoch
+    $Origin = [datetime]::SpecifyKind([datetime]::Parse("1970-01-01T00:00:00"), [System.DateTimeKind]::Utc)
+    foreach ($ST in $StandardTime){
+        $UnixTime = $ST - $Origin | Select-Object -ExpandProperty TotalSeconds
+        Write-Output $UnixTime
+    }
 }
 
 

@@ -247,8 +247,7 @@ function Get-ZXHost {
 
     #Show JSON Request if -WhatIf switch is used
     If ($WhatIf){
-        Write-Host -ForegroundColor Yellow "JSON RESPONSE"
-        Write-Host -ForegroundColor Cyan $($request.result | ConvertTo-Json -Depth 5)
+        Write-JsonRequest
     }
     
     #Show API call respoinse time if -ShowResponseTime switch is used
