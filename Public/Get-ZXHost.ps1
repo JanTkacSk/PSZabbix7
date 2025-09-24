@@ -18,7 +18,6 @@ function Get-ZXHost {
         [string]$Status,
         [ValidateSet("0","1","True","False")]
         [string]$InMaintenance,
-        [switch]$ShowResponseTime,
         [switch]$IncludeDiscoveries,
         [switch]$IncludeHostGroups,
         [switch]$IncludeInterfaces,
@@ -236,38 +235,6 @@ function Get-ZXHost {
     #Make the final API call
     if(!$WhatIf){
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
-    }
-
-    #Record API call end
-    $APICallEndTime = Get-Date
-
-    #Calculste API call response time
-    $APICallResponseTime = $APICallEndTime - $APICallStartTime
-    
-
-    #Show JSON Request if -WhatIf switch is used
-    If ($WhatIf){
-        Write-JsonRequest
-    }
-    
-    #Show API call respoinse time if -ShowResponseTime switch is used
-    If ($ShowResponseTime){
-        Write-Host -ForegroundColor Yellow "Response time: " -NoNewline
-        Write-Host -ForegroundColor Cyan "$($APICallResponseTime.TotalSeconds) seconds"
-    }
-    #This will be returned by the function
-
-        if($null -ne $Request.error){
-            $Request.error
-            return
-        }
-        elseif($CountOutput){
-            $Request.result
-            return
-        }   
-        else {
-            $Request.result
-            return
-        }
-        
-    }
+        Resolve-ZXApiResponse -Request $Request
+    }        
+}
