@@ -9,8 +9,6 @@ function Get-ZXMaintenance {
         [switch]$IncludeHostGroups,
         [switch]$IncludeHosts,
         [switch]$IncludeTags,
-        [switch]$ShowJsonRequest,
-        [switch]$ShowJsonResponse,
         [switch]$IncludeTimePeriods,
         [array]$TimePeriodProperties,
         [switch]$CountOutput,
@@ -18,18 +16,7 @@ function Get-ZXMaintenance {
         [switch]$WhatIf
     )
 
-    #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-    function ShowJsonRequest {
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    }
-    #A function to convert unix time to standard time.
-
-    #Validate Parameters
-
+    # Validate Parameters
     if (!$Output){
         [string]$Output = "extend"
     }
@@ -46,23 +33,17 @@ function Get-ZXMaintenance {
         }    
     }
 
-    #Functions
+    # Functions
 
-    #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj = [PSCustomObject]@{
-        "jsonrpc" = "2.0";
-        "method" = "maintenance.get";
-        "params" = [PSCustomObject]@{};
-        "id" = 1;
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-    }
+    # Basic PS Object wich will be edited based on the used parameters and finally converted to json
+    $PSObj = New-ZXApiRequestObject -Method "maintenance.get"
 
-    #Return a maintenance based on host name FILTER
+    # Return a maintenance based on host name FILTER
     if($Name){
         AddFilter -PropertyName "name" -PropertyValue $Name
     }
 
-    #Return a maintenance  based on host name SEARCH. 
+    # Return a maintenance  based on host name SEARCH. 
     if($NameSearch){
         AddSearch -PropertyName "name" -PropertyValue $NameSearch
     }
@@ -91,53 +72,23 @@ function Get-ZXMaintenance {
     if($Limit){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
     }
-    #Return only output count
+    # Return only output count
     if($CountOutput){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "countOutput" -Value "true"
     }
     
-
-
     $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
 
-    $Json =  $PSObj | ConvertTo-Json -Depth 3
+    $Json =  $PSObj | ConvertTo-Json -Depth 5
 
-    #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest){
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
+    if($WhatIf){
+        Write-JsonRequest
     }
-    
-    #Make the API call
+   
+    # Make the API call
     if(!$WhatIf){
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
-    }
-    if($WhatIf){
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
+        Resolve-ZXApiResponse -Request $Request
     }
 
-    If ($ShowJsonResponse){
-        Write-Host -ForegroundColor Yellow "JSON RESPONSE"
-        Write-Host -ForegroundColor Cyan $($request.result | ConvertTo-Json -Depth 5)
-    }
-    
- 
-    #This will be returned by the function
-    if($null -ne $Request.error){
-        $Request.error
-        return
-    } 
-    else {
-
-        $Request.result
-        return
-
-    }
 }
