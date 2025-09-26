@@ -1,11 +1,13 @@
 $ModuleFile = "$PSScriptRoot\..\PSZabbix7.psm1"
 $FunctionFiles = Get-ChildItem $PSScriptRoot\..\Public | Select-Object -ExpandProperty FullName
-$HelperFunctionFile = Get-Item $PSScriptRoot\..\Private\HelperFunctions.ps1 | Select-Object -ExpandProperty FullName
+$PrivateFunctionFile = Get-Item $PSScriptRoot\..\Private\PrivateFunctions.ps1 | Select-Object -ExpandProperty FullName
 
 $ModuleFileContent = ""
 
-$HelperFunctionsContent = Get-Content $HelperFunctionFile | Out-String
-$ModuleFileContent += "`n" + $HelperFunctionsContent
+$PrivateFunctionsContent = Get-Content $PrivateFunctionFile | Out-String
+$ModuleFileContent += "`n" + $PrivateFunctionsContent
+
+$ModuleFileContent += "# -----------Public Functions---------- #"
 
 
 foreach ($Function in $FunctionFiles){

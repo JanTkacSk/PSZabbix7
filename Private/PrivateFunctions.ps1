@@ -1,4 +1,6 @@
-#A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
+# -----------Private Functions---------- #
+
+# Formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
 Function Write-JsonRequest {
     Write-Host -ForegroundColor Yellow "JSON REQUEST"
     $PSObjShow = $PSObj | ConvertTo-Json -Depth 5 | ConvertFrom-Json
@@ -7,7 +9,7 @@ Function Write-JsonRequest {
     Write-Host -ForegroundColor Cyan $JsonShow
 }
 
-#Basic PS Object wich will be edited based on the used parameters and finally converted to json
+# Basic PS Object wich will be edited based on the used parameters and finally converted to json
 Function New-ZXApiRequestObject ($Method){
         return [PSCustomObject]@{
         "jsonrpc" = "2.0"; 
