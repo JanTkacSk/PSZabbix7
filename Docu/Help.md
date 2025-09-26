@@ -4,12 +4,12 @@
 
 ## New-ZXTokenSession
 
-**Start new session and save the URL/token pair (prompt for password and url, token is encrypted)**
+**Start new session and save the URL/token pair (prompt for password and url, token is saved in encrypted form on a disk)**
 ```powershell
 New-ZXTokenSession -Save
 ```
 
-**Start new session and save the URL/token pair (prompt for password, token is encrypted)**
+**Start new session and save the URL/token pair (prompt for password, token is saved in encrypted form on a disk)**
 ```powershell
 New-ZXTokenSession -Url https://YourZabbixAPIURL -Save
 ```
