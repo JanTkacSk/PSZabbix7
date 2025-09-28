@@ -26,7 +26,6 @@ function Get-ZXService {
         [switch]$ExcludeSearch,
         [array]$Status,
         [switch]$Editable,
-        [switch]$ShowJsonRequest,
         [switch]$WhatIf,
         [array]$Output
     )
@@ -81,15 +80,7 @@ function Get-ZXService {
     }
 
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj = [PSCustomObject]@{
-        "jsonrpc" = "2.0";
-        "method" = "service.get";
-        "params" = [PSCustomObject]@{
-        }; 
-        #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken)));
-        "id" = 1;
-    }
+    $PSObj = New-ZXApiRequestObject -Method "service.get"
 
     #Output content
     $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
@@ -154,39 +145,19 @@ function Get-ZXService {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "parentids" -Value $ParentID
     }
 
-
-
         #Convert the ps object to json. It is crucial to use a correct value for the -Depth
-        $Json = $PSObj | ConvertTo-Json -Depth 6
+        $Json = $PSObj | ConvertTo-Json -Depth 5
 
-            #Make the final API call
+        
+        #Show JSON Request if -Whatif switch is used
+        If ($WhatIf){
+            Write-JsonRequest
+        }
+
+        #Make the final API call
         if(!$WhatIf){
             $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
-        }
-
-
-        #Show JSON Request if -ShowJsonRequest switch is used
-        If ($ShowJsonRequest -or $WhatIf){
-            Write-Host -ForegroundColor Yellow "JSON REQUEST"
-            $PSObjShow = $PSObj | ConvertTo-Json -Depth 6 | ConvertFrom-Json -Depth 6
-            $PSObjShow.auth = "*****"
-            $JsonShow = $PSObjShow | ConvertTo-Json -Depth 6
-            Write-Host -ForegroundColor Cyan $JsonShow
-        }
-
-        #This will be returned by the function
-
-        if($null -ne $Request.error){
-            $Request.error
-            return
-        }
-        elseif($CountOutput){
-            $Request.result
-            return
-        }   
-        else {
-            $Request.result
-            return
+            Resolve-ZXApiResponse -Request $Request
         }
 
 }
