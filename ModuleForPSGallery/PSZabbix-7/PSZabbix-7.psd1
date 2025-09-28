@@ -3,7 +3,7 @@
     RootModule = 'PSZabbix-7.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.0.2'
+    ModuleVersion = '0.0.3'
 
     # ID used to uniquely identify this module
     GUID = 'd3e66cb0-4c68-4f07-9d70-b92a15a26c7a'
@@ -42,7 +42,7 @@
             Tags = @('Zabbix', 'API', 'Monitoring')
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'Initial release.'
+            ReleaseNotes = 'Bug fixes and refactoring of Get-ZXService, Get-ZXProxy'
         }
     }
 }
