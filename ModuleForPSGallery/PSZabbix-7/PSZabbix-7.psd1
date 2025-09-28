@@ -1,9 +1,9 @@
 @{
     # Script module or binary module file associated with this manifest
-    RootModule = 'PSZabbix7.psm1'
+    RootModule = 'PSZabbix-7.psm1'
 
     # Version number of this module.
-    ModuleVersion = '0.0.1'
+    ModuleVersion = '0.0.2'
 
     # ID used to uniquely identify this module
     GUID = 'd3e66cb0-4c68-4f07-9d70-b92a15a26c7a'
