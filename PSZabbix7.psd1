@@ -42,7 +42,7 @@
             Tags = @('Zabbix', 'API', 'Monitoring')
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'Refactioring Get-ZXTemplate.'
+            ReleaseNotes = 'Refactioring Get-ZXTemplate, Get-ZXTrigger.'
         }
     }
 }
