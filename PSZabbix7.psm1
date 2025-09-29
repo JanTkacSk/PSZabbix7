@@ -2283,21 +2283,13 @@ function Get-ZXTrigger {
         [switch]$IncludeTags,
         [switch]$IncludeFunctions,
         [switch]$IncludeDependencies,
-        [switch]$ShowJsonRequest,
-        [switch]$ShowJsonResponse,
-        [switch]$WhatIf
+        [switch]$WhatIf,        
+        [string]$Limit
     )
 
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj = [PSCustomObject]@{
-        "jsonrpc" = "2.0";
-        "method" = "trigger.get";
-        "params" = [PSCustomObject]@{
-        };
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "id" = 1
-    }
-    
+    $PSObj = New-ZXApiRequestObject -Method "trigger.get"
+
     #Validate parameters
     if (!$Output){
         $Output = @("triggerid","description","expression","status","type","state")
@@ -2305,16 +2297,6 @@ function Get-ZXTrigger {
     elseif($Output -contains "extend") {
         [string]$Output = "extend"
     }
-
-    #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-    function ShowJsonRequest {
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    }
-    
 
     #Get the item for the hosts with the specified IDs
     if ($HostID){
@@ -2341,38 +2323,25 @@ function Get-ZXTrigger {
     if ($Description){
         AddFilter -PropertyName "description" -PropertyValue $Description
     }
+    if($Limit){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "limit" -Value $Limit
+    }
 
     $PSObj.params | Add-Member -MemberType NoteProperty -Name "output" -Value $Output
     
     $Json =  $PSObj | ConvertTo-Json -Depth 3
 
-    #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest -or $WhatIf){
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
+    #Show JSON Request if -Whatif switch is used
+    If ($WhatIf){
+        Write-JsonRequest
     }
     
     #Make the API call
     if(!$WhatIf){
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
+        Resolve-ZXApiResponse -Request $Request
     }
-    If ($ShowJsonResponse){
-        Write-Host -ForegroundColor Yellow "JSON RESPONSE"
-        Write-Host -ForegroundColor Cyan $($request.result | ConvertTo-Json -Depth 5)
-    }
-   
-    #This will be returned by the function
-    if($null -ne $Request.error){
-        $Request.error
-        return
-    } 
-    else {
-        $Request.result
-        return
-    }
+
 }
 
 function Get-ZXTriggerPrototype {
