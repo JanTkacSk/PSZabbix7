@@ -42,7 +42,7 @@
             Tags = @('Zabbix', 'API', 'Monitoring')
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'Bug fixes and refactoring of Get-ZXService, Get-ZXProxy.'
+            ReleaseNotes = 'Refactioring Get-ZXTemplate.'
         }
     }
 }

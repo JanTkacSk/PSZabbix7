@@ -21,19 +21,8 @@ function Get-ZXTemplate {
         [array]$Output,
         [switch]$WithItems,
         [switch]$CountOutput,
-        [switch]$ShowJsonRequest,
-        [switch]$ShowJsonResponse,
         [switch]$WhatIf
     )
-
-    #A function that formats and displays the json request that is used in the API call, it removes the API token value and replaces it with *****
-    function ShowJsonRequest {
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj | ConvertFrom-Json | ConvertTo-Json
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
-    }
 
     #Validate Parameters
 
@@ -85,13 +74,7 @@ function Get-ZXTemplate {
         }    
     }
     #Basic PS Object wich will be edited based on the used parameters and finally converted to json
-    $PSObj = [PSCustomObject]@{
-        "jsonrpc" = "2.0";
-        "method" = "template.get";
-        "params" = [PSCustomObject]@{};
-        "auth" = [Runtime.InteropServices.Marshal]::PtrToStringAuto([Runtime.InteropServices.Marshal]::SecureStringToBSTR(($Global:ZXAPIToken))); #This is the same as $Global:ZXAPIToken | ConvertFrom-SecureString -AsPlainText but this worsk also for PS 5.1
-        "id" = 1
-    }
+    $PSObj = New-ZXApiRequestObject -Method "template.get"
 
     #Template name in the zabbix api is host, not name, therefore property name is "host"...
     if ($NameSearch){
@@ -155,33 +138,15 @@ function Get-ZXTemplate {
 
     $Json =  $PSObj | ConvertTo-Json -Depth 5
 
-    #Show JSON Request if -ShowJsonRequest switch is used
-    If ($ShowJsonRequest -or $WhatIf){
-        Write-Host -ForegroundColor Yellow "JSON REQUEST"
-        $PSObjShow = $PSObj | ConvertTo-Json -Depth 5  | ConvertFrom-Json 
-        $PSObjShow.auth = "*****"
-        $JsonShow = $PSObjShow | ConvertTo-Json -Depth 5
-        Write-Host -ForegroundColor Cyan $JsonShow
+    #Show JSON Request if -Whatif switch is used
+    If ($WhatIf){
+        Write-JsonRequest
     }
     
     #Make the API call
     if (!$WhatIf){
         $Request = Invoke-RestMethod -Uri $ZXAPIUrl -Body $Json -ContentType "application/json" -Method Post
+        Resolve-ZXApiResponse -Request $Request
     }
     
-    If ($ShowJsonResponse){
-        Write-Host -ForegroundColor Yellow "JSON RESPONSE"
-        Write-Host -ForegroundColor Cyan $($request.result | ConvertTo-Json -Depth 5)
-    }
-
-    #This will be returned by the function
-    if($null -ne $Request.error){
-        $Request.error
-        return
-    } 
-    else {
-        $Request.result
-        return
-    }
-
 }
