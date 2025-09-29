@@ -1300,7 +1300,9 @@ function Get-ZXHostInterface {
         [array]$ItemProperties,
         [switch]$IncludeItems,
         [int]$Limit,
-        [switch]$WhatIf
+        [int]$Type,
+        [switch]$WhatIf,
+        [switch]$CountOutput
 
     )
 
@@ -1317,6 +1319,7 @@ function Get-ZXHostInterface {
     $PSObj = New-ZXApiRequestObject -Method "hostinterface.get"
     
     if($IP){AddFilter -PropertyName "ip" -PropertyValue $IP}
+    if($Type){AddFilter -PropertyName "type" -PropertyValue $Type}
     if($IPSearch){AddSearch -PropertyName "ip" -PropertyValue $IPSearch}
     if($InterfaceID){
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "interfaceids" -Value $InterfaceID
@@ -1327,6 +1330,10 @@ function Get-ZXHostInterface {
     if ($IncludeItems) {
         $PSObj.params | Add-Member -MemberType NoteProperty -Name "selectItems" -Value $ItemProperties
     }
+    #Return only output count
+    if($CountOutput){
+        $PSObj.params | Add-Member -MemberType NoteProperty -Name "countOutput" -Value "true"
+    }
 
     #Limit the number of returned Interfaces
     if($Limit){
@@ -1334,7 +1341,7 @@ function Get-ZXHostInterface {
     }
 
     #$PSObj.params.output = "extend"
-    $Json =  $PSObj | ConvertTo-Json -Depth 3
+    $Json =  $PSObj | ConvertTo-Json -Depth 5
 
     if ($WhatIf){
         Write-JsonRequest
