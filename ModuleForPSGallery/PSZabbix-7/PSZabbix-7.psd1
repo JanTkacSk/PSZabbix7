@@ -1,6 +1,6 @@
 @{
     # Script module or binary module file associated with this manifest
-    RootModule = 'PSZabbix-7.psm1'
+    RootModule = 'PSZabbix7.psm1'
 
     # Version number of this module.
     ModuleVersion = '0.0.3'
@@ -42,7 +42,7 @@
             Tags = @('Zabbix', 'API', 'Monitoring')
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'Bug fixes and refactoring of Get-ZXService, Get-ZXProxy'
+            ReleaseNotes = 'Bug fixes and refactoring of Get-ZXService, Get-ZXProxy.'
         }
     }
 }
