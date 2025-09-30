@@ -42,7 +42,8 @@
             Tags = @('Zabbix', 'API', 'Monitoring')
 
             # ReleaseNotes of this module
-            ReleaseNotes = 'Refactioring Get-ZXTemplate, Get-ZXTrigger, Get-ZXTriggerPrototype.'
+            ReleaseNotes = 'Refactioring Get-ZXTemplate, Get-ZXTrigger, 
+            Get-ZXTriggerPrototype, New-ZXLogonSession, New-ZXHost, New-ZXService.'
         }
     }
 }
