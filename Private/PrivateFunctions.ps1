@@ -92,4 +92,27 @@ function ConvertTo-UnixTime{
 }
 
 
+<# Create an array of objects from a simple array. Each object has only one property $PropertyName (you choose the name).
+# For example from the following array "1234" it creates an object like" 
+{
+"request": {
+    "itemid": 1234
+},
+"type": "6"
+}
+#>
+function ConvertArrayToObjects($PropertyName,$Array){
+    $Result = @()
+    foreach ($item in $Array){
+        $Result += @{"type"="6";
+            "request"=[PSCustomObject]@{
+                "$PropertyName" = "$item"
+            }
+        }
+    }
+    $Result
+    return
+}
+
+
 
