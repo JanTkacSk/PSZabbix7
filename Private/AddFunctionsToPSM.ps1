@@ -1,4 +1,4 @@
-$ModuleFile = "$PSScriptRoot\..\PSZabbix7.psm1"
+$ModuleFile = "$PSScriptRoot\..\PSZabbix-7\PSZabbix-7.psm1"
 $FunctionFiles = Get-ChildItem $PSScriptRoot\..\Public | Select-Object -ExpandProperty FullName
 $PrivateFunctionFile = Get-Item $PSScriptRoot\..\Private\PrivateFunctions.ps1 | Select-Object -ExpandProperty FullName
 
