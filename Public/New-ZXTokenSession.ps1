@@ -65,7 +65,7 @@ function New-ZXTokenSession{
         }
         $Choice = Read-Host -Prompt "Select the number and press enter"
 
-        $ZXAPIToken = $LogonData[$Choice].Token | ConvertTo-SecureString
+        $Global:ZXAPIToken = $LogonData[$Choice].Token | ConvertTo-SecureString
         $Global:ZXApiURL = $LogonData[$Choice].URL
 
     }
